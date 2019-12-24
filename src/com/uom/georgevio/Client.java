@@ -39,6 +39,8 @@ public class Client implements Runnable{
 
 	SpanningTree spanningtree = new SpanningTree(graph); /* graph exists now */
 	
+	ClusterMonitor clustermonitor = new ClusterMonitor(graph);
+	
 	Scanner lineReader; /* read serial port output line by line */
 
 	
@@ -181,20 +183,20 @@ public class Client implements Runnable{
 /**************END OF run()***********************************/
 /*************************************************************/
     
-public void setSerialPort(){
-	try{
-/********* Set & open the serial port ***************************/
-		debug("Will keep on trying to open motePort every 2000ms");
-		while(motePort == null) {
-			motePort = serialportprobe.getSerialPort();
-			Thread.sleep(2000);
-			debug("port not found");
+	public void setSerialPort(){
+		try{
+			/* Set & open the serial port */
+			debug("Will keep on trying to open motePort every 2000ms");
+			while(motePort == null) {
+				motePort = serialportprobe.getSerialPort();
+				Thread.sleep(2000);
+				debug("port not found");
+			}
+			debug("Serial Port found :)");
+		} catch (Exception e) {
+			debug(e.toString());
 		}
-		debug("Serial Port found :)");
-	} catch (Exception e) {
-		debug(e.toString());
 	}
-}
 /***************************************************************************/	
     public boolean legitIncomIP(String incomingIP) {
     	/* sometimes an IP "0000" comes along, but we need to compare it
@@ -258,6 +260,7 @@ public void setSerialPort(){
 	public void countEdges(){
 		int nodesNum = graph.getNodeCount();
 		int edgesNum = graph.getEdgeCount();
+		
 		if(roundsCounter%15 == 0 && timeStart>80000) { /* print every ten rounds with initial delay */
 
 			Stream<Edge> edgesStr = graph.edges();

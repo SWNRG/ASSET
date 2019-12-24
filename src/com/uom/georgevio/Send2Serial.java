@@ -24,6 +24,7 @@ public class Send2Serial implements Runnable{
     public void run(){
     	debug("Send2Serial started...");
     }
+    
 /***************************************************************************/	
 	public void probeNeighbors(Iterable<Node> nodes) {
 		for (Node node : nodes) {
@@ -48,7 +49,7 @@ public class Send2Serial implements Runnable{
 	}			
 	
 /******************** SEND A MESSAGE TO UART PORT **************************/
-	public void send2Serial(String message){		
+	private void send2Serial(String message){		
 		//debug("["+System.currentTimeMillis()+"] Sending to serial (CONTIKI): "+message);
 		try{
 			OutputStream a = motePort.getOutputStream();			
@@ -75,6 +76,6 @@ public class Send2Serial implements Runnable{
 	}      
 /***************************************************************************/    
     private static void debug(String message){
-    	//Main.debug((message));
+    	Main.debug((message));
 	}
 }
