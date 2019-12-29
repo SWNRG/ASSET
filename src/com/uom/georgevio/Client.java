@@ -236,8 +236,11 @@ public class Client implements Runnable{
 	    		 roundsCounter++;
 	    		 
 			}/* end while nextline() */
+			
+			clienthelper.removeGraph();
 			debug("Closing scanner...Program ended");
 			lineReader.close(); /* Normally, it should never come here, unless exit == true */
+	
     	}/* end while(!exit) */
     	
     }/* end run() */

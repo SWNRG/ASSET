@@ -1,10 +1,10 @@
 package com.uom.georgevio;
 
 import java.io.BufferedReader;
-import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.util.List;
-import java.util.stream.Collectors;
-import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 
 import weka.clusterers.SimpleKMeans;
@@ -27,24 +27,33 @@ public class ClusterMonitor{
 		kmeans.setPreserveInstancesOrder(true);
 		kmeans.setNumClusters(numCLusters);
 		
-		BufferedReader bufRead = null;
-				
-		for (Node node : nodes) {	    
-			int UDPRecv = (int) node.getAttribute("UDPRecv");			
-			debug("Cluster: "+ "Node: "+IPlastHex(node.toString())+" UDP Received: "+UDPRecv+"\n");
-			
-			
-			
-			
-			
-			//null pointer
-			
-			
-			String stream = IPlastHex(node.toString())+" "+UDPRecv+"\n";
-				
-			bufRead = new BufferedReader( new InputStreamReader(null,stream));	
-		}
-                
+		String pinakas;
+		try (StringWriter strOut = new StringWriter()) {
+		    try (PrintWriter out = new PrintWriter(strOut)) {		
+		    	out.println("@relation Node-attacked");
+		    	out.print("@attribute nodeId {");
+		    	String lastComma = "";
+		    	for (Node node : nodes) {
+			    	out.print(lastComma+IPlastHex(node.getId()));
+			    	lastComma = ",";
+		    	}
+		    	out.println("}");
+		    	out.println("@attribute UDPRecv numeric");
+		    	out.println("@data");
+		    	
+		    	for (Node node : nodes) {	    
+					int UDPRecv = (int) node.getAttribute("UDPRecv");			
+					//debug("Cluster: "+ "Node: "+IPlastHex(node.toString())+" UDP Received: "+UDPRecv+"\n");
+					
+					out.println(IPlastHex(node.toString())+","+UDPRecv);	
+				}
+		    }
+		    pinakas = strOut.toString();
+		}	
+		debug(pinakas);
+		
+		BufferedReader bufRead = new BufferedReader(new StringReader(pinakas));
+
 		Instances data = new Instances(bufRead);
 		kmeans.buildClusterer(data);
  
@@ -52,9 +61,14 @@ public class ClusterMonitor{
 		// The array has as many elements as the number of instances
 		int[] assignments = kmeans.getAssignments();
  
+		for (int i=0;i<data.size();i++) {
+			debug("Node: "+data.get(i)+" in cluster "+assignments[i]);
+			
+		}
+		
 		int i=0;
 		for(int clusterNum : assignments) {
-		    debug("Instance "+i+" -> Cluster "+clusterNum+"\n");
+		    //debug("Instance "+i+" -> Cluster "+clusterNum+"\n");
 		    i++;
 		}
 	}

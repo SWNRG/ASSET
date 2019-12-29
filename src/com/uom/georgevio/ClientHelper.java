@@ -38,16 +38,20 @@ public class ClientHelper {
 
 	}
 	
+/***************************************************************************/
+	public void removeGraph() {
+		graphstyling.removeView();
+	}
+/***************************************************************************/	
 	public void setMotePort(SerialPort motePort) { /* port will be set by the Client class */
 		this.motePort = motePort;
 		debug("ClientHelper class: Serial port set from Client class...");
 		send2serial = new Send2Serial(motePort); /* serial port is set now */
 	}
-
+/***************************************************************************/
 	public void sendMsg2Serial(String message) {
 		send2serial.sendSpecificMessage(message);
 	}
-
 /***************************************************************************/	
 	public boolean getInDegrees(int roundsCounter) {
 
@@ -187,14 +191,14 @@ public class ClientHelper {
 		List<Node> nodes = graph.nodes()
 				.filter(node -> node.getId() != ipServer) 
 			    .collect(Collectors.toList());
-		if( System.currentTimeMillis() > appTimeStarted + Main.keepAliveNodeBound ) {
+		//if( System.currentTimeMillis() > appTimeStarted + Main.keepAliveNodeBound ) {
 			debug("Time to start kmeans...............................");
 			try {
 				clustermonitor.kMeans(clusters, nodes);
 			} catch (Exception e) {
 				debug(e.toString());
 			}
-		}
+		//}
 	}	
 /***************************************************************************/	
 	/* Print all nodes in the graph */

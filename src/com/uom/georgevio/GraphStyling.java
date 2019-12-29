@@ -9,9 +9,11 @@ import org.graphstream.ui.view.Viewer;
 public class GraphStyling {
 	
 	private Graph graph = new SingleGraph("Graph");
-
+	
+	Viewer viewer ;
+	
 	public GraphStyling() { /* constructor */
-		Viewer viewer = graph.display(true); /* show the graph in a standalone window */
+		viewer = graph.display(true); /* show the graph in a standalone window */
 		viewer.enableAutoLayout();
 	}
 	
@@ -51,6 +53,9 @@ public class GraphStyling {
 						  + "text-style:bold; "
 						  + "text-size:15px;";
 
+	public void removeView() {
+		viewer.close();
+	}
 /***************************************************************************/		
 	public Graph returnGraph() { /* getter */
 		return graph;
