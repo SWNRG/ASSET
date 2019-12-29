@@ -7,31 +7,64 @@ import org.graphstream.graph.implementations.SingleGraph;
 import org.graphstream.ui.view.Viewer;
 
 public class GraphStyling {
-	Graph graph;
 	
-	public GraphStyling() { /* constructor */
-		/* for advanced graph effects */
-		System.setProperty("org.graphstream.ui.renderer", "org.graphstream.ui.j2dviewer.J2DGraphRenderer");
-		System.setProperty("org.graphstream.ui", "javafx"); 
-		graph = new SingleGraph("Graph");
+	private Graph graph = new SingleGraph("Graph");
 
+	public GraphStyling() { /* constructor */
 		Viewer viewer = graph.display(true); /* show the graph in a standalone window */
 		viewer.enableAutoLayout();
 	}
+	
+	String sinkNodeCSS =  "shape:circle;"
+						+ "fill-color: green, orange; "
+						+ "fill-mode: gradient-diagonal1; "
+						+ "size:45px; "
+						+ "text-alignment: center; "
+						+ "text-style:bold; "
+						+ "text-color:blue; "
+						+ "text-size:15px;";
+	
+	String normalNodeCSS = "shape:circle; " 
+						+ "	fill-color:yellow, orange; "
+						+ " fill-mode: gradient-diagonal1; " 
+						+ " size:40px; "
+						+ "	text-alignment:center; "
+						+ "	text-color:black; "
+						+ "	text-style:bold; " 
+						+ "	text-size:15px;";
+	
+	String quietNodeCSS = "shape:circle; "
+						+ "fill-color: #EEE3E3, #FFF9F9; "
+						+ "fill-mode: gradient-diagonal1; "
+						+ "size:40px; "
+						+ "text-alignment: center; "
+						+ "text-color:red; "
+						+ "text-style:bold; "
+						+ "text-size:15px;";
+	
+	String allienNodeCSS = "shape:circle;"
+						  + "fill-color: #FF0000, #D5D5D5; "
+						  + "fill-mode: gradient-diagonal1; "
+						  + "size:40px; "
+						  + "text-alignment: center; "
+						  + "text-color:white; "
+						  + "text-style:bold; "
+						  + "text-size:15px;";
+
 /***************************************************************************/		
 	public Graph returnGraph() { /* getter */
 		return graph;
 	}
 /***************************************************************************/	
 	public Node nodeStyle(Node node) {
-		node.setAttribute("ui.style", "shape:circle;fill-color: yellow, orange; fill-mode: gradient-diagonal1; size:40px; text-alignment:center; text-color:black; text-style:bold; text-size:15px;");
+		node.setAttribute("ui.style", normalNodeCSS);
 		node.setAttribute("ui.label", IPlastHex(node.getId())); /* id of node in the graph */
 		return node;
 	}
 /***************************************************************************/	
 	public Node nodeStyle(String inNode) {/* polymorphism */
 		Node node =graph.getNode(inNode);
-		node.setAttribute("ui.style", "shape:circle;fill-color: yellow, orange; fill-mode: gradient-diagonal1; size:40px; text-alignment:center; text-color:black; text-style:bold; text-size:15px;");
+		node.setAttribute("ui.style", normalNodeCSS);
 		node.setAttribute("ui.label", IPlastHex(inNode)); /* id of node in the graph */
 		return node;
 	}
@@ -42,13 +75,18 @@ public class GraphStyling {
 	}
 /***************************************************************************/	
 	public void nodeColorGrey(Node inNode) {
-		inNode.setAttribute("ui.style", "shape:circle;fill-color: #EEE3E3, #FFF9F9; fill-mode: gradient-diagonal1; size:40px; text-alignment: center; text-color:red; text-style:bold; text-size:15px;");
+		inNode.setAttribute("ui.style", quietNodeCSS);
+		inNode.setAttribute("ui.label", IPlastHex(inNode.getId())); /* id of node in the graph */
+	}
+/***************************************************************************/	
+	public void nodeColorAlien(Node inNode) {
+		inNode.setAttribute("ui.style", allienNodeCSS);
 		inNode.setAttribute("ui.label", IPlastHex(inNode.getId())); /* id of node in the graph */
 	}
 /***************************************************************************/	
 	public void sinkColor(String inNode) {
 		Node node =graph.getNode(inNode);
-		node.setAttribute("ui.style", "shape:circle;fill-color: green, orange; fill-mode: gradient-diagonal1; size:40px; text-alignment: center; text-style:bold; text-color:blue; text-size:15px;");
+		node.setAttribute("ui.style", sinkNodeCSS);
 		node.setAttribute("ui.label", IPlastHex(inNode)); /* id of node in the graph */
 	}
 /***************************************************************************/	
@@ -78,7 +116,7 @@ public class GraphStyling {
 	}  
 /***************************************************************************/    
 	private static void debug(String message){
-		//Main.debug((message));
+		Main.debug((message));
 	}
 /***************************************************************************/ 
 }

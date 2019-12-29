@@ -15,20 +15,24 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
 import java.text.SimpleDateFormat;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 public class Main extends Application {
     //TODO: private static Logger logger = LogManager.getRootLogger();
 	//TODO: Find an algorithm to detect loops and no connection to sink
-	
+
 	/* if true all output will be sent to console, else to standard output */
 	public static final boolean consoleOutputTrue = true;
 	
+	public static final long keepAliveNodeBound = 80000;
+	public static final long grayZoneNodeBound = 150000;
+
 	Stage primaryStageLocal = new Stage();
 	
     private Scene scene;
-    private static TextArea console;// = new TextArea();
+    private static TextArea console;
     private static TextField nodesOutput;
     private static TextField edgesOutput;
     private TextField inDegreeOutput;
@@ -53,30 +57,51 @@ public class Main extends Application {
 
         Client client = new Client();
         Thread thread = new Thread(client);
-        //thread.start();
+        thread.start();
         
         /* Transfer the Client.start() to the GUI button */
         Button bttnStart = (Button) scene.lookup("#bttnStart");
-        if(!thread.isAlive()) /* only if thread has not started yet */
-        	bttnStart.setOnAction(e->thread.start());
+         /* only if a thread has not started yet */
+        	bttnStart.setOnAction(e->{
+	        	if(!thread.isAlive()) {
+	        		thread.start();
+	        	}
+	            else {
+	            	debug("Stopping thread");	            	
+	            	//client.setExit(true);
+	            	thread.interrupt();
+	            	try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e1) {
+						e1.printStackTrace();
+					}
+	            	debug("Starting thread again");	 
+	            	Thread thread1 = new Thread(client);
+	            	thread1.start(); 
+	            }
+        	});
+
         
         Button bttnStop = (Button) scene.lookup("#bttnStop");
         if(thread.isAlive()) /* only if thread has started already */
-        	bttnStop.setOnAction(e->Thread.currentThread().interrupt());
+        	bttnStop.setOnAction(e->client.setExit(true));
         
         
 
     }
 /******************************************************************************/
     public static void main(String[] args) {
+    	/* for advanced graph effects */
+    	System.setProperty("org.graphstream.ui.renderer", "org.graphstream.ui.j2dviewer.J2DGraphRenderer");
+    	System.setProperty("org.graphstream.ui", "javafx"); 
+    	
     	//Application.launch(args);
         launch(args);
     }
 
 	private static String formatTime(long millis) {
 	    SimpleDateFormat sdf = new SimpleDateFormat("hh:mm:ss.SSS");
-	    String strDate = sdf.format(millis);
-	    return strDate;
+	    return sdf.format(millis);
 	}
 	
 	public static void nodesOutput(String nodes) {
@@ -122,3 +147,19 @@ public class Main extends Application {
 			System.out.println(formatTime(System.currentTimeMillis())+": "+ message+".");
     }
 }
+
+class MyThread implements Runnable{
+	private volatile boolean exit = false;
+	
+	@Override
+	public void run() {
+		while(!exit){
+		
+		}
+		
+	}
+    public void stop(){
+        exit = true;
+    }
+}
+

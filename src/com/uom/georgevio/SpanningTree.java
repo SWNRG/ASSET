@@ -11,10 +11,10 @@ import org.graphstream.graph.Graph;
 
 public class SpanningTree {
 	
-	static Graph graph;
+	private Graph graph;
 	
-	public SpanningTree(Graph graph) {
-		SpanningTree.graph = graph;
+	public SpanningTree(Graph graph) { /* constructor */
+		this.graph = graph;
 	}
 
 	public void spanTreePrim() {
@@ -31,14 +31,12 @@ public class SpanningTree {
 		
 		Iterable<Edge> primEdges = edges::iterator; /* Only the once not in the graph */		
 		for (Edge edge : primEdges ) {
-			//System.out.println(edge.getAttribute("InsideGraph"));
-			System.out.println("Nodes outside spanning tree: "+edge.getNode0()+", "+edge.getNode1());
+			debug("Nodes outside spanning tree: "+edge.getNode0()+", "+edge.getNode1());
 		}
 		
 		
-	}
-	
-
+	}	
+/***************************************************************************/  
 	public List<Edge> spanTreeKruskal() {
   		Kruskal kruskal = new Kruskal("ui.class", "intree", "notintree");
   	  
@@ -53,5 +51,9 @@ public class SpanningTree {
 		kruskal.clear();
 
 		return edgesP;
+	}
+/***************************************************************************/    
+	private void debug(String message){
+		Main.debug((message));
 	}
 }

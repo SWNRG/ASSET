@@ -4,7 +4,7 @@ import com.fazecast.jSerialComm.SerialPort;
 
 public class SerialPortProbe {
 	
-	SerialPort motePort = null; 
+	SerialPort motePort ; 
 	
 	public SerialPortProbe() {
 		//motePort = getSerialPort();
@@ -15,28 +15,22 @@ public class SerialPortProbe {
 	}
 	
 	public SerialPort getSerialPort() {
+		
 	/********* Set & open the serial port ***************************/            
-    		try {
-        		motePort = findPort("dev/pts/19");
-	    		if(motePort==null) {
-	    			motePort=findPort("dev/pts/20");
-	    		}
-    			if(motePort==null) {
-	    			motePort=findPort("dev/pts/21");
-    			}
-    			if(motePort==null) {
-	    			motePort=findPort("dev/pts/2");
-    			}
-				if(motePort==null) {
-					motePort=findPort("dev/pts/18");
-				}
-				if(motePort==null) {
-					motePort=findPort("dev/pts/17");
-				}
-    		}catch (Exception e) {
-    			debug(e.toString());
-    		}
-			return motePort;
+		if (motePort == null) 
+			motePort=findPort("dev/pts/2");
+		if (motePort == null)	
+			motePort=findPort("dev/pts/17");
+		if (motePort == null)
+			motePort=findPort("dev/pts/18");
+		if (motePort == null)
+			motePort = findPort("dev/pts/19");
+		if (motePort == null)
+			motePort=findPort("dev/pts/20");
+		if (motePort == null)
+			motePort=findPort("dev/pts/21");
+			
+		return motePort;
 	}
 /***********METHODS*******************************************/	
 	protected SerialPort findPort(String portName ) {

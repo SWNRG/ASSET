@@ -8,9 +8,6 @@ import com.fazecast.jSerialComm.SerialPort;
 public class Send2Serial implements Runnable{
 	SerialPort motePort;
 
-	long timeStart = System.currentTimeMillis();
-	long lastTimeFired = System.currentTimeMillis();
-
 	public Send2Serial(SerialPort motePort) {
 		try {
 			this.motePort = motePort;
@@ -18,6 +15,12 @@ public class Send2Serial implements Runnable{
 			debug("motePort is null");
 			debug(e.toString());
 		}  
+	}
+	
+	public Send2Serial() { /* polymorphism */
+		if (motePort == null) {
+			debug("Serial Port not set yet...Halting");
+		}
 	}
 
     @Override
@@ -47,10 +50,8 @@ public class Send2Serial implements Runnable{
 			  Thread.currentThread().interrupt();
 		}	
 	}			
-	
 /******************** SEND A MESSAGE TO UART PORT **************************/
 	private void send2Serial(String message){		
-		//debug("["+System.currentTimeMillis()+"] Sending to serial (CONTIKI): "+message);
 		try{
 			OutputStream a = motePort.getOutputStream();			
 			
