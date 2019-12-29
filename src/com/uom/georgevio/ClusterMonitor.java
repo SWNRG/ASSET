@@ -16,10 +16,10 @@ public class ClusterMonitor{
 
 	}
 
-	// implement clustering to check for nodes with abnormalities.
-	// then instruct the nodes to send more info
-	
 	public void kMeans(int numCLusters, List<Node> nodes) throws Exception {
+		
+		debug("k-MEANS STARTED with "+numCLusters+" Clusters");
+		
 		SimpleKMeans kmeans = new SimpleKMeans();
 		kmeans.setSeed(10);
 		
@@ -32,6 +32,14 @@ public class ClusterMonitor{
 		for (Node node : nodes) {	    
 			int UDPRecv = (int) node.getAttribute("UDPRecv");			
 			debug("Cluster: "+ "Node: "+IPlastHex(node.toString())+" UDP Received: "+UDPRecv+"\n");
+			
+			
+			
+			
+			
+			//null pointer
+			
+			
 			String stream = IPlastHex(node.toString())+" "+UDPRecv+"\n";
 				
 			bufRead = new BufferedReader( new InputStreamReader(null,stream));	
