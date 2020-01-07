@@ -17,35 +17,59 @@ public class ClusterMonitor{
 	}
 
 	public void kMeans(int numCLusters, List<Node> nodes) throws Exception {
-		
-		debug("k-MEANS STARTED with "+numCLusters+" Clusters");
-		
 		SimpleKMeans kmeans = new SimpleKMeans();
 		kmeans.setSeed(10);
 		
-		//important parameter to set: preserver order, number of cluster.
+		//implement memory: keep the last 10 data sets, so kmeans will run on those?
+		// but kmeans has NO MEMORY, hence it does not make sense....
+		
+		
+		/* Partitioning-based clustering
+	    K-means clustering
+	    K-medoids clustering
+	    EM (expectation maximization) clustering
+		*/
+	    
+		/*
+		List<Integer> UDPRecv = null;
+
+		for (int i=0; i<10; i++) {
+			for (Node node : nodes) {
+				debug("Node "+IPlastHex(node.getId())+", UDPRecv:"+(Integer)node.getAttribute("UDPRecv"));
+				//UDPRecv.add((Integer) node.getAttribute("UDPRecv"));
+			}
+		}
+		debug("--------End of inserting UDPs into UDPRecv List------------");
+		*/
+		
+		
+		
+		// And if you don't use k-means? Say, average linkage clustering? 
+		// I fear that your answer is overfitting to k-means
+		
+		//Clustering is a tool to help the human explore a data set, not a automatic thing. 
+		// But you will not "deploy" a clustering. They are too unreliable, and a single 
+		//clustering will never "tell the whole story".
+		
+		//You do not use training and testing in unsupervised learning
+		
+		
+		
+		/* important parameters to set: preserver order, number of cluster */
 		kmeans.setPreserveInstancesOrder(true);
 		kmeans.setNumClusters(numCLusters);
 		
 		String pinakas;
 		try (StringWriter strOut = new StringWriter()) {
 		    try (PrintWriter out = new PrintWriter(strOut)) {		
-		    	out.println("@relation Node-attacked");
-		    	out.print("@attribute nodeId {");
-		    	String lastComma = "";
-		    	for (Node node : nodes) {
-			    	out.print(lastComma+IPlastHex(node.getId()));
-			    	lastComma = ",";
-		    	}
-		    	out.println("}");
-		    	out.println("@attribute UDPRecv numeric");
-		    	out.println("@data");
+		    	out.println("@RELATION Nodes-attacked");
+		    	//out.println("@ATTRIBUTE nodeId String");
+		    	out.println("@ATTRIBUTE UDPRecv numeric");
+		    	out.println("@DATA");
 		    	
-		    	for (Node node : nodes) {	    
-					int UDPRecv = (int) node.getAttribute("UDPRecv");			
-					//debug("Cluster: "+ "Node: "+IPlastHex(node.toString())+" UDP Received: "+UDPRecv+"\n");
-					
-					out.println(IPlastHex(node.toString())+","+UDPRecv);	
+		    	for (Node node : nodes) {	    		
+					//out.println(IPlastHex(node.toString())+","+((int) node.getAttribute("UDPRecv")));	
+					out.println(((int) node.getAttribute("UDPRecv")));	// only one parameter
 				}
 		    }
 		    pinakas = strOut.toString();
@@ -57,20 +81,26 @@ public class ClusterMonitor{
 		Instances data = new Instances(bufRead);
 		kmeans.buildClusterer(data);
  
-		// This array returns the cluster number (starting with 0) for each instance
-		// The array has as many elements as the number of instances
+
+		/* This array returns the cluster number (starting with 0) for each instance
+		 * The array has as many elements as the number of instances
+		 */
 		int[] assignments = kmeans.getAssignments();
- 
-		for (int i=0;i<data.size();i++) {
-			debug("Node: "+data.get(i)+" in cluster "+assignments[i]);
-			
+		
+		int counter = 0;
+		for (Node node : nodes) {
+			debug("Node: "+IPlastHex(node.getId())+" in cluster "+assignments[counter]);
+			counter++;
 		}
 		
-		int i=0;
-		for(int clusterNum : assignments) {
-		    //debug("Instance "+i+" -> Cluster "+clusterNum+"\n");
-		    i++;
-		}
+		/* Is there kmeans confidence? if yes, less than certain confidence 
+		 * should not consider the classification
+		 */
+		
+		
+		/* when this is smaller than 0.1, it correctly classifies nodes */
+		debug("--------End clustering. square error = "+kmeans.getSquaredError()+"-------");
+
 	}
 	
 	

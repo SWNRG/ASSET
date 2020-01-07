@@ -23,6 +23,9 @@ public class Main extends Application {
     //TODO: private static Logger logger = LogManager.getRootLogger();
 	//TODO: Find an algorithm to detect loops and no connection to sink
 
+	
+	LogService logservice = new LogService();
+	
 	/* if true all output will be sent to console, else to standard output */
 	public static final boolean consoleOutputTrue = true;
 	
@@ -100,7 +103,8 @@ public class Main extends Application {
     }
 
 	private static String formatTime(long millis) {
-	    SimpleDateFormat sdf = new SimpleDateFormat("hh:mm:ss.SSS");
+	    //SimpleDateFormat sdf = new SimpleDateFormat("hh:mm:ss.SSS");
+	    SimpleDateFormat sdf = new SimpleDateFormat("hh:mm:ss");
 	    return sdf.format(millis);
 	}
 	

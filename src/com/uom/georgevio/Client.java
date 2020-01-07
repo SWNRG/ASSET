@@ -72,7 +72,7 @@ public class Client implements Runnable{
 	        			
 		
 	        		}/* end if InPut.startsWith("Tentative") */
-	        		
+	            	else
 	            	if (inComingLine.startsWith("Route")){
 	        			String[] parts = inComingLine.split(" ",4);
 	        			String ip1 = parts[1];
@@ -97,7 +97,8 @@ public class Client implements Runnable{
 	        			
 	        		}/* end if InPut.startsWith("Route") */
 	        		 
-	        		if(inComingLine.startsWith("NP")){
+	            	else 
+	            	if(inComingLine.startsWith("NP")){
 	        			try{
 	        				String[] parts = inComingLine.split("NP:",2);
 	        				parts = parts[1].split(" ",3);
@@ -112,7 +113,7 @@ public class Client implements Runnable{
 	        				clienthelper.checkEdge(ipParent, ipChild);	
 	        			
 	        			}catch (ArrayIndexOutOfBoundsException e) {
-	        				debug(e.toString());
+	        				debug("NP line problem: "+ e.toString());
 	        			}
 	        		} /* end if InPut startsWith "NP" */
 	        		        		
@@ -121,7 +122,8 @@ public class Client implements Runnable{
 	        		 * if it does not exist, BUT NOT the edge. 
 	        		 * After that, we need to ask the node to print its father.
 	        		 */
-	        		if(inComingLine.startsWith("N1")){
+	            	else 
+	            	if(inComingLine.startsWith("N1")){
 	        			try{
 	        				String[] parts = inComingLine.split("N1:",2);
 	        				parts = parts[1].split(" ",3);
@@ -144,49 +146,55 @@ public class Client implements Runnable{
 	        				}
 		        			
 	        			}catch (ArrayIndexOutOfBoundsException e) {
-	        				debug("could not break apart: "+inComingLine);
-	        				debug(e.toString());
+	        				//debug("could not break apart: "+inComingLine);
+	        				debug("N1 line problem: "+e.toString());
 	        			}
 	        		}
-	
+	            	else
 	        		if(inComingLine.startsWith("Custom ")){ /* Custom Data coming from node */
 	        			try{
 	        				String[] parts = inComingLine.split("from ",2);
 	        				String nodeAlive = parts[1];	        				
 	
 		        			if(clienthelper.legitIncomIP(nodeAlive)) {
-		        				clienthelper.checkNode(nodeAlive); /* it will also reset the keepAliveTimer */	
-		        				
-		        				
-		        				
-		        				
-		        				
-		        				
-		        				
-		        				
-		        				
-		        				
-		        				
-		        				
+		        				clienthelper.checkNode(nodeAlive); /* it will also reset the keepAliveTimer */			        				
 		        				clienthelper.addRecvdPacket(nodeAlive); /* keep the num of received data packets */
-		        			
-		        			
-		        			
-		        			
-		        			
-		        			
-		        			
-		        			
-		        			
-		        			
 		        			}
 	
 	        			}catch (ArrayIndexOutOfBoundsException e) {
-	        				debug("could not break apart: "+inComingLine);
-	        				debug(e.toString());
+	        				//debug("could not break apart: "+inComingLine);
+	        				debug("Custom line problem: "+e.toString());
 	        			}
 	        		}
-	        		
+	        		else
+	        		if(inComingLine.startsWith("[SI:")){ /* ICMP statistics coming from node */
+	        			try{
+	        				String[] parts = inComingLine.split(" from ",2);
+	        				String nodeAlive = parts[1];	        				
+	        				
+		        			if(clienthelper.legitIncomIP(nodeAlive)) {
+		        				
+		        				
+		        				
+		        				// this creates a DOUBLE NODE !!!!!
+		        				//clienthelper.checkNode(nodeAlive); /* it will also reset the keepAliveTimer */	
+		        				
+		        				
+		        				
+		        				parts = parts[0].split(":",2);
+		        				parts = parts[1].split(" ",2);
+		        				String ICMPRecv = parts[0];
+		        				String ICMPSent =  parts[1].substring(0, parts[1].length() - 1); /* remove ']' */
+		        				
+		        				/* keep the num of Send/Recv ICMP packets */
+		        				clienthelper.addICMPStats(nodeAlive, ICMPRecv, ICMPSent); 
+		        			}
+	
+	        			}catch (ArrayIndexOutOfBoundsException e) {
+	        				//debug("Could not break apart: "+inComingLine);
+	        				debug("SI line problem: "+e.toString());
+	        			}
+	        		}
 	        		
 /*************** PRINTOUTS **********************************/		
 	
@@ -221,7 +229,7 @@ public class Client implements Runnable{
 	        		
 	        		
 
-	        		clienthelper.runKMeans(2); 
+	        		//clienthelper.runKMeans(2); 
 	        		
 	        		
 	        		

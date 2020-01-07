@@ -35,7 +35,6 @@ public class ClientHelper {
 	DecimalFormat df = new DecimalFormat();
 		
 	public ClientHelper() { /* constructor */
-
 	}
 	
 /***************************************************************************/
@@ -96,7 +95,7 @@ public class ClientHelper {
 				List<Edge> edgesSpan = spanningtree.spanTreeKruskal();
 				if(!edgesSpan.isEmpty()) {
 					for (Edge edge : edgesSpan) {
-						Main.debug("Loose node(s) found! Taking actions...\n");
+						Main.debug("Spanning Tree: Loose node(s) found! Taking actions...\n");
 						/* Edge will be removed, node will be forced to tell the truth */
 						removeEdgeifExists(edge);
 					}
@@ -112,7 +111,9 @@ public class ClientHelper {
 		int outDegree = 0;
 		int totalOutDegrees = 0;
 		int UDPRecv = 0;
-		df.setMaximumFractionDigits(2);
+		int ICMPSent = 0;
+		int ICMPRecv = 0;
+		df.setMaximumFractionDigits(2); /* printing only 2 decimals */
 		
 		/* If it is smaller than a given threshold, the node is still alive.
 		 * Else, the node is long gone, remove it.
@@ -138,16 +139,22 @@ public class ClientHelper {
 				totalOutDegrees+=outDegree;
 				int shortNodeName = IPlastHex(node.toString());
 				keepAliveTimer = System.currentTimeMillis() - (long) node.getAttribute("keepAliveTimer");;
-				float secs = keepAliveTimer / 1000F; /* seconds */
+				//float secs = keepAliveTimer / 1000F; 
+				String secs = new DecimalFormat("#,##0.00").format( keepAliveTimer / 1000F); /* seconds */
 				try {
 					UDPRecv = (int) node.getAttribute("UDPRecv");
+					ICMPSent = (int) node.getAttribute("ICMPSent");
+					ICMPRecv = (int) node.getAttribute("ICMPRecv");
 				}catch (NullPointerException e) {
-					debug("Node "+IPlastHex(node.toString())+", UDPRecv doesnot exist");
+					debug("Node "+IPlastHex(node.getId())+" "+e.toString());
 				}
-				debug(" Node: "+shortNodeName+"\tInEdges: "+inDegree+
-							"\tOutEdges: "+outDegree+",\tLast seen: "+
-							df.format(secs)+"sec ago. UDPRecv "+UDPRecv); 
-								
+/******PRINTING INFORMATION ABOUT NODES *********************************************/	
+				debug(" Node "+shortNodeName+"\tInEdges "+inDegree+",\tLast seen "+
+							//df.format(secs)+
+							secs+" sec. UDPRecv "+UDPRecv+
+							"\tICMP I/O: "+ICMPRecv+", "+ICMPSent
+					 ); 
+
 				if (keepAliveTimer < Main.keepAliveNodeBound) { 
 					/* Node reappears, or appears for first time */
 					if((boolean) node.getAttribute("parentOnly")) {							 
@@ -178,21 +185,30 @@ public class ClientHelper {
 				}
 			
 			}
-			debug("------Current Nodes:"+nodesNum+"------Current Edges:"+edgesNum+"-------------\n\n");
+			debug("------Nodes:"+nodesNum+"------inComing Edges:"+edgesNum+"-------------\n\n");
 
 			Main.nodesOutput((Integer.toString(nodesNum)));
 			Main.edgesOutput((Integer.toString(edgesNum)));
 			Main.totalOutDegreesOutput((Integer.toString(totalOutDegrees)));
 		}   
 	}
+
+	
 /***************************************************************************/		
 	public void runKMeans(int clusters) {
 
 		List<Node> nodes = graph.nodes()
 				.filter(node -> node.getId() != ipServer) 
 			    .collect(Collectors.toList());
+		
+		
+		
+		
 		//if( System.currentTimeMillis() > appTimeStarted + Main.keepAliveNodeBound ) {
-			debug("Time to start kmeans...............................");
+		
+		
+		
+		debug("............Time to start kmeans...............................");
 			try {
 				clustermonitor.kMeans(clusters, nodes);
 			} catch (Exception e) {
@@ -224,37 +240,13 @@ public class ClientHelper {
 		}
 	}
 /***************************************************************************/	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-/*	
-keepAliveTimer causes problems.
-Solution 1: printEdgesInfo
-for node :nodes
-If node.parentonly == false
-do KeepaliveTimer ....
-
-Solution 2
- set KeepAliveTimer to a time (what? Small or big?)
-	
-*/	
-	
-	
 	/* If a node is reported ONLY as a parent, it could be an intruder (alien).
 	 * Mark it as a node, but dont set the boolean parameter "responding"
 	 */	
 	public boolean onlyAddNodeifNotExist(String nodeId) {	
 		boolean answer = false;
-
 		
-		if (graph.getNode(nodeId)==null) {/* node does not exist, needs to be added */
+		if (graph.getNode(nodeId) == null) {/* node does not exist, needs to be added */
 			debug("Only adding (parent) node: "+IPlastHex(nodeId));
 			
 			graph.addNode(nodeId);
@@ -269,11 +261,14 @@ Solution 2
 			if(nodeId.equals(ipServer))
 				graphstyling.sinkColor(nodeId);			
 			else { /* for all nodes != sink */
-
 				graphstyling.nodeColorAlien(graph.getNode(nodeId));
 				graph.getNode(nodeId).setAttribute("timeSeenCounter",0);
 				graph.getNode(nodeId).setAttribute("avgTimeSeen",0.0);
-				graph.getNode(nodeId).setAttribute("keepAliveTimer",System.currentTimeMillis());	
+				graph.getNode(nodeId).setAttribute("keepAliveTimer",System.currentTimeMillis());
+				
+				graph.getNode(nodeId).setAttribute("UDPRecv",0);
+				graph.getNode(nodeId).setAttribute("ICMPSent",0);
+				graph.getNode(nodeId).setAttribute("ICMPRecv",0);
 			}
 			
 			answer = true; 
@@ -297,50 +292,59 @@ Solution 2
 		int timeSeenCounter = 0;
 		double updatedAvgSeen = 0;
 		long currentTime = System.currentTimeMillis();
-		
-		if (graph.getNode(nodeId)==null) {/* node does not exist, needs to be added */
-			graph.addNode(nodeId);
-			debug("New node added: "+graph.getNode(nodeId));
-			
-			/* color each node for the graph, accordingly */ 
-			if(nodeId.equals(ipServer))
-				graphstyling.sinkColor(nodeId); //TODO: redundant code, above is enough?
-			else { /* for all nodes != sink */
 
+		/* color each node for the graph, accordingly */ 
+		if(nodeId.equals(ipServer))
+			graphstyling.sinkColor(nodeId); //TODO: redundant code, above is enough?
+		else /* for all nodes except the sink */
+			if (graph.getNode(nodeId) == null) {/* node does not exist, needs to be added */
+				graph.addNode(nodeId);
+				debug("New node added: "+graph.getNode(nodeId));
+	
 				graph.getNode(nodeId).setAttribute("parentOnly", false);
 				graphstyling.nodeStyle(nodeId);
-
-				if(graph.getNode(nodeId).getAttribute("UDPRecv")==null)
-					graph.getNode(nodeId).setAttribute("UDPRecv",0);
-
+	
+				graph.getNode(nodeId).setAttribute("UDPRecv",0);
+				graph.getNode(nodeId).setAttribute("ICMPSent",0);
+				graph.getNode(nodeId).setAttribute("ICMPRecv",0);
+				
 				graph.getNode(nodeId).setAttribute("timeSeenCounter",1);
 				graph.getNode(nodeId).setAttribute("avgTimeSeen",0.0);
 				graph.getNode(nodeId).setAttribute("keepAliveTimer",currentTime);
-			}
-			answer = true; 
+				
+				answer = true; 
+	 
+			} else { /* node exists, just reset timers */
 			
-		} else if(!nodeId.equals(ipServer)) { /*  for all nodes EXCEPT the sink */
-			
-			/* node already exists, no need to be added, just reset its timer */
-			graph.getNode(nodeId).setAttribute("keepAliveTimer",currentTime);
-			
-			/* Node has just responded as a child, hence it is not only parent */
-			graph.getNode(nodeId).setAttribute("parentOnly", false);
-			
-			double curAvgTimeSeen = (double) graph.getNode(nodeId).getAttribute("avgTimeSeen");
-						
-			timeSeenCounter = (int) graph.getNode(nodeId).getAttribute("timeSeenCounter");
-			updatedAvgSeen = ( curAvgTimeSeen+currentTime ) /++timeSeenCounter;
-			graph.getNode(nodeId).setAttribute("timeSeenCounter",timeSeenCounter);
-			graph.getNode(nodeId).setAttribute("avgTimeSeen",updatedAvgSeen);
-			
-			if(graph.getNode(nodeId).getAttribute("UDPRecv")==null)
-				graph.getNode(nodeId).setAttribute("UDPRecv",0);
-		}		
-		return answer;
+				/* node already exists, no need to be added, just reset its timer */
+				graph.getNode(nodeId).setAttribute("keepAliveTimer",currentTime);
+				
+				/* Node has just responded as a child, hence it is not only parent */
+				if ( (boolean) graph.getNode(nodeId).getAttribute("parentOnly"))
+						graph.getNode(nodeId).setAttribute("parentOnly", false);
+				
+				double curAvgTimeSeen = (double) graph.getNode(nodeId).getAttribute("avgTimeSeen");
+							
+				timeSeenCounter = (int) graph.getNode(nodeId).getAttribute("timeSeenCounter");
+				updatedAvgSeen = ( curAvgTimeSeen+currentTime ) /++timeSeenCounter;
+				graph.getNode(nodeId).setAttribute("timeSeenCounter",timeSeenCounter);
+				graph.getNode(nodeId).setAttribute("avgTimeSeen",updatedAvgSeen);
+				
+				/*   // THis code is redundant. Since the node exists, it already has the following?
+				if(graph.getNode(nodeId).getAttribute("UDPRecv")==null)
+					graph.getNode(nodeId).setAttribute("UDPRecv",0);
+				
+				if(graph.getNode(nodeId).getAttribute("ICMPSent")==null)
+					graph.getNode(nodeId).setAttribute("ICMPSent",0);
+				
+				if(graph.getNode(nodeId).getAttribute("ICMPRecv")==null)
+				graph.getNode(nodeId).setAttribute("ICMPRecv",0);
+				*/
+			}		
+			return answer;
 	}
 /***************************************************************************/	
-	/* if an edge does not exist, add it to the graph AND remove the old incoming one if any*/
+	/* if an edge does not exist, add it to the graph AND remove the old incoming one if any */
 	public void checkEdge(String ip1, String ip2) {
 
 		String curEdge = ip1+"-"+ip2;
@@ -363,8 +367,35 @@ Solution 2
 			//printEdgesInfo();
 		}	
 	}
+/***************************************************************************/	
 /***************************************************************************/
-	public void addRecvdPacket(String nodeId) {
+	public void addICMPStats(String nodeId, String inICMP, String outICMP) {
+		try{
+			Node node = graph.getNode(nodeId);
+
+			node.setAttribute("ICMPSent", 
+						Integer.parseInt(outICMP) - (int)node.getAttribute("ICMPSent")	
+					);
+
+			node.setAttribute("ICMPRecv", 
+						Integer.parseInt(inICMP) - (int)node.getAttribute("ICMPRecv")
+					);
+			
+		}catch (Exception e) {
+			debug("Node "+IPlastHex(nodeId)+": "+e.toString());
+		}
+	}
+/***************************************************************************/
+/***************************************************************************/	
+	public int getICMPSent(String node) {
+		return (int) graph.getNode(node).getAttribute("ICMPSent");
+	}
+/***************************************************************************/
+	public int getICMPRecv(String node) {
+		return (int) graph.getNode(node).getAttribute("ICMPRecv");
+	}
+/***************************************************************************/	
+ 	public void addRecvdPacket(String nodeId) {
 		try{
 			Node node = graph.getNode(nodeId);
 			int UDPRecv = (int) node.getAttribute("UDPRecv");
@@ -376,6 +407,7 @@ Solution 2
 	}
 /***************************************************************************/	
 	/* Convert the last part of IPv6 to DEC for short print */
+/***************************************************************************/	
 	public int IPlastHex(String IPv6) {
 		int decValue = 0;
 		int index = IPv6.lastIndexOf(":");
@@ -398,6 +430,10 @@ Solution 2
 	}
 /***************************************************************************/
 	/* Remove and old edge (Normally, the node changed parent) */
+/***************************************************************************/	
+	/* sometimes an IP "0000" comes along, but we need to compare it
+	 * with the SINK's IP, hence AFTER the sink IP is first set
+	 */
 	public void removeEdgeifExists(Node from, Node to) { /* polymorphism */
 		try {
 			graph.removeEdge(from, to);
@@ -405,6 +441,7 @@ Solution 2
 			debug(e.toString());
 		}
 	}
+/***************************************************************************/	
 /***************************************************************************/
 	/* Remove and old edge (Normally, the node changed parent) */
 	public void removeEdgeifExists(Edge edge) { /* polymorphism */
@@ -415,15 +452,14 @@ Solution 2
 		}
 	}
 /***************************************************************************/	
-	/* sometimes an IP "0000" comes along, but we need to compare it
-	 * with the SINK's IP, hence AFTER the sink IP is first set
-	 */
+/***************************************************************************/	
 	public boolean legitIncomIP(String incomingIP) {
     	/* if chars 1-4 in str1 match chars 1-4 in str2 */
     	return incomingIP.regionMatches(1, ipServer, 1, 4);
     }
 /***************************************************************************/
-	public void printEdgesOnly(int roundsCounter, long timeStart){ //TODO: Redundand method ??? Below method is enough?
+/***************************************************************************/	
+	public void printEdgesOnly(int roundsCounter, long timeStart){ //TODO: Redundant method ??? Below method is enough?
 		int nodesNum = graph.getNodeCount();
 		int edgesNum = graph.getEdgeCount();
 		
@@ -455,8 +491,7 @@ Solution 2
 		return bytes;
 	}
 /***************************************************************************/    
-
-/***************************************************************************/  
+/***************************************************************************/
 	private void debug(String message){
 		Main.debug((message));
 	}
