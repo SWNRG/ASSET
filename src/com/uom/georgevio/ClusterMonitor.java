@@ -4,11 +4,18 @@ import java.io.BufferedReader;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.text.DecimalFormat;
+import java.util.Iterator;
 import java.util.List;
 import org.graphstream.graph.Node;
 
+import weka.clusterers.HierarchicalClusterer;
 import weka.clusterers.SimpleKMeans;
+import weka.core.Capabilities;
+import weka.core.Capabilities.Capability;
+import weka.core.Instance;
 import weka.core.Instances;
+import weka.experiment.AveragingResultProducer;
 
 public class ClusterMonitor{
 
@@ -22,6 +29,8 @@ public class ClusterMonitor{
 		
 		//implement memory: keep the last 10 data sets, so kmeans will run on those?
 		// but kmeans has NO MEMORY, hence it does not make sense....
+		
+		HierarchicalClusterer hierarchicalclusterer = new HierarchicalClusterer();
 		
 		
 		/* Partitioning-based clustering
@@ -53,7 +62,12 @@ public class ClusterMonitor{
 		
 		//You do not use training and testing in unsupervised learning
 		
-		
+		/*
+		Average Linkage is a type of hierarchical clustering in which the distance 
+		between one cluster and another cluster is considered to be equal to the 
+		average distance from any member of one cluster to any member of the 
+		other cluster.
+		*/	
 		
 		/* important parameters to set: preserver order, number of cluster */
 		kmeans.setPreserveInstancesOrder(true);
@@ -74,33 +88,60 @@ public class ClusterMonitor{
 		    }
 		    pinakas = strOut.toString();
 		}	
-		debug(pinakas);
+		//debug(pinakas);
 		
 		BufferedReader bufRead = new BufferedReader(new StringReader(pinakas));
 
 		Instances data = new Instances(bufRead);
+		
 		kmeans.buildClusterer(data);
- 
-
-		/* This array returns the cluster number (starting with 0) for each instance
-		 * The array has as many elements as the number of instances
+		
+		/* This array returns the kmeans cluster number (starting with 0) for 
+		 * each instance. The array has as many elements as the number of instances.
 		 */
 		int[] assignments = kmeans.getAssignments();
 		
-		int counter = 0;
-		for (Node node : nodes) {
-			debug("Node: "+IPlastHex(node.getId())+" in cluster "+assignments[counter]);
-			counter++;
+		debug("");
+		
+/* Kmeans implementation. Needs cluster number in advance     */
+		/* when this is smaller than 0.1, it correctly classifies nodes */
+		if (kmeans.getSquaredError() < 0.1) {
+			debug("-------- K-MEANS clustering ------------------");
+			int counter = 0;
+			for (Node node : nodes) {
+				debug("Node: "+IPlastHex(node.getId())+" in cluster "+assignments[counter]);
+				counter++;
+			}
+			DecimalFormat df = new DecimalFormat("#.00");  
+			Float shortKMeans = Float.valueOf(df.format(kmeans.getSquaredError()));
+			debug("--------End k-means. kmeans square error = "+shortKMeans+"-------");
 		}
 		
-		/* Is there kmeans confidence? if yes, less than certain confidence 
-		 * should not consider the classification
-		 */
+		debug("");
 		
-		
-		/* when this is smaller than 0.1, it correctly classifies nodes */
-		debug("--------End clustering. square error = "+kmeans.getSquaredError()+"-------");
-
+/* Hierarchical clustering implementation. No need for cluster number in advance */
+		if(hierarchicalclusterer.graph() != null){ /* avoid null pointer exception */
+			debug("---------Hierarchy clusters number: "+hierarchicalclusterer.getNumClusters()+"------------");
+			hierarchicalclusterer.buildClusterer(data);
+			debug("Graph: "+hierarchicalclusterer.graph());
+			
+			double[] arr;
+			for(int i=0; i<nodes.size(); i++) {
+			      arr = hierarchicalclusterer.distributionForInstance(data.get(i));
+			      double probability = 0;
+			      int cluster = -1;
+			      for(int j=0; j< arr.length; j++) {
+			          if (probability < arr[j]) {
+			        	  probability = arr[j];
+			        	  cluster = j;
+			          }
+			      }
+		    	  debug("Hierarc.Clust: Node "+IPlastHex(nodes.get(i).toString())+
+		        		  "\tbelongs to cluster "+cluster+"\t(with probability "+probability+")");   
+			      
+			}
+			debug("-------------End Hierarcy clustering-----------------");
+		}
 	}
 	
 	

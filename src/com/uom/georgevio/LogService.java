@@ -18,29 +18,36 @@ public class LogService {
     Formatter simpleFormatter = null;
 
     public LogService(){
-    	
+    	System.setProperty("java.util.logging.SimpleFormatter.format", 
+                "%5$s%6$s%n");
         try{
+            // Creating SimpleFormatter
+            simpleFormatter = new SimpleFormatter();
+            
             //Creating consoleHandler and fileHandler
-            consoleHandler = new ConsoleHandler();
+            //consoleHandler = new ConsoleHandler();
             fileHandler  = new FileHandler("./javalog.log");
              
             //Assigning handlers to LOGGER object
-            LOGGER.addHandler(consoleHandler);
+            //LOGGER.addHandler(consoleHandler);
             LOGGER.addHandler(fileHandler);
              
-            //Setting levels to handlers and LOGGER
-            consoleHandler.setLevel(Level.ALL);
-            fileHandler.setLevel(Level.ALL);
-            LOGGER.setLevel(Level.ALL);
-             
-            LOGGER.config("Configuration done.");
+            // Setting formatter to the handler
+            fileHandler.setFormatter(simpleFormatter);
             
-             
-            LOGGER.log(Level.FINE, "Finer logged");
+            //Setting levels to handlers and LOGGER
+            //consoleHandler.setLevel(Level.ALL);
+            fileHandler.setLevel(Level.FINE);
+            LOGGER.setLevel(Level.FINE);
+            
         }catch(IOException exception){
             LOGGER.log(Level.SEVERE, "Error occur in FileHandler.", exception);
         }         
     }  
+    
+    public void logMessage(String message) {
+    	LOGGER.log(Level.FINE, message);
+    }
     
     public void removeLogger() {
         //Console handler removed

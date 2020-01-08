@@ -192,29 +192,18 @@ public class ClientHelper {
 			Main.totalOutDegreesOutput((Integer.toString(totalOutDegrees)));
 		}   
 	}
-
-	
 /***************************************************************************/		
 	public void runKMeans(int clusters) {
 
 		List<Node> nodes = graph.nodes()
 				.filter(node -> node.getId() != ipServer) 
 			    .collect(Collectors.toList());
-		
-		
-		
-		
-		//if( System.currentTimeMillis() > appTimeStarted + Main.keepAliveNodeBound ) {
-		
-		
-		
-		debug("............Time to start kmeans...............................");
+
 			try {
 				clustermonitor.kMeans(clusters, nodes);
 			} catch (Exception e) {
 				debug(e.toString());
 			}
-		//}
 	}	
 /***************************************************************************/	
 	/* Print all nodes in the graph */
@@ -329,17 +318,6 @@ public class ClientHelper {
 				updatedAvgSeen = ( curAvgTimeSeen+currentTime ) /++timeSeenCounter;
 				graph.getNode(nodeId).setAttribute("timeSeenCounter",timeSeenCounter);
 				graph.getNode(nodeId).setAttribute("avgTimeSeen",updatedAvgSeen);
-				
-				/*   // THis code is redundant. Since the node exists, it already has the following?
-				if(graph.getNode(nodeId).getAttribute("UDPRecv")==null)
-					graph.getNode(nodeId).setAttribute("UDPRecv",0);
-				
-				if(graph.getNode(nodeId).getAttribute("ICMPSent")==null)
-					graph.getNode(nodeId).setAttribute("ICMPSent",0);
-				
-				if(graph.getNode(nodeId).getAttribute("ICMPRecv")==null)
-				graph.getNode(nodeId).setAttribute("ICMPRecv",0);
-				*/
 			}		
 			return answer;
 	}

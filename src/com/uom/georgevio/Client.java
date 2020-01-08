@@ -228,8 +228,8 @@ public class Client implements Runnable{
 	        		
 	        		
 	        		
-
-	        		//clienthelper.runKMeans(2); 
+	        		if(roundsCounter > 15)
+	        			clienthelper.runKMeans(2); 
 	        		
 	        		
 	        		

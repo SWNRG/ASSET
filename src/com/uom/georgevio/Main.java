@@ -20,11 +20,10 @@ import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 public class Main extends Application {
-    //TODO: private static Logger logger = LogManager.getRootLogger();
 	//TODO: Find an algorithm to detect loops and no connection to sink
 
-	
-	LogService logservice = new LogService();
+	static LogService logservice = new LogService();
+	private static final boolean logging2File = true;
 	
 	/* if true all output will be sent to console, else to standard output */
 	public static final boolean consoleOutputTrue = true;
@@ -83,14 +82,11 @@ public class Main extends Application {
 	            	thread1.start(); 
 	            }
         	});
-
-        
+       
         Button bttnStop = (Button) scene.lookup("#bttnStop");
         if(thread.isAlive()) /* only if thread has started already */
         	bttnStop.setOnAction(e->client.setExit(true));
         
-        
-
     }
 /******************************************************************************/
     public static void main(String[] args) {
@@ -103,7 +99,6 @@ public class Main extends Application {
     }
 
 	private static String formatTime(long millis) {
-	    //SimpleDateFormat sdf = new SimpleDateFormat("hh:mm:ss.SSS");
 	    SimpleDateFormat sdf = new SimpleDateFormat("hh:mm:ss");
 	    return sdf.format(millis);
 	}
@@ -141,6 +136,9 @@ public class Main extends Application {
 	
     public static void debug(String message){
     	message = formatTime(System.currentTimeMillis())+": "+message;
+		if (logging2File) /* Only if logfile is needed */
+			logservice.logMessage(message);
+		
 		if (consoleOutputTrue) { /* All output to JavaFX console (TextArea) */ 
 	    	if (!message.endsWith("\n"))
 	    		message = message+"\n";

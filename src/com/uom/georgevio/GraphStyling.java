@@ -13,8 +13,24 @@ public class GraphStyling {
 	Viewer viewer ;
 	
 	public GraphStyling() { /* constructor */
+		
+		
+		
+		
 		viewer = graph.display(true); /* show the graph in a standalone window */
 		viewer.enableAutoLayout();
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	}
 	
 	String sinkNodeCSS =  "shape:circle;"
