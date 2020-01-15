@@ -148,6 +148,19 @@ public class Main extends Application {
 		else /* standard Java output */
 			System.out.println(formatTime(System.currentTimeMillis())+": "+ message+".");
     }
+    
+    public static void debugEssential(String message) {
+		if (logging2File){ /* Only if logfile is needed */
+			message = formatTime(System.currentTimeMillis())+"\t"+message;
+			logservice.logBasics(message);
+		}
+    }
+    
+    public static void debugEssentialTitle(String message) {
+		if (logging2File){ /* Only if logfile is needed */
+			logservice.logBasics(message);
+		}
+    }
 }
 
 class MyThread implements Runnable{

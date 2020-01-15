@@ -47,7 +47,7 @@ public class Client implements Runnable{
     	while(!Thread.interrupted()) {
 
 	    	debug("Client searching for Serial port...");	    	
-	    	/* it will continue, ONLY IF port is found */
+	    	/* it will continue, ONLY when port is found */
 	    	while(motePort == null)
 	    		motePort = serialportprobe.getSerialPort();
 			debug("Client: Serial port found");
@@ -67,10 +67,9 @@ public class Client implements Runnable{
 	        			debug("found ipServer: "+ipServer);
 	        			clienthelper.setSink(ipServer); /* ONCE ONLY, at the beginning */
 	        			
-	
+	        			//TODO: Is this redundant? ipServer already exists by now?
 	        			//clienthelper.checkNode(ipServer);
-	        			
-		
+
 	        		}/* end if InPut.startsWith("Tentative") */
 	            	else
 	            	if (inComingLine.startsWith("Route")){
@@ -79,24 +78,21 @@ public class Client implements Runnable{
 	        			String ip2 = parts[2];
 	        			String[] ltime = parts[3].split(":",2);
 	        			String lt = ltime[1];
-	        			int intlt = Integer.parseInt(lt);
-	        			//TODO: use the intlt in the graph
+	        			int intlt = Integer.parseInt(lt); //TODO: use the intlt in the graph
 	
 	        			if(ip1.equals(ip2)) {/* node is a direct child of sink's */
 	        				debug("found a direct child of sink: "+ip1);
 	        				if(ipServer == null) {
 	        					debug("ATTENTION: Found a sink's child, SINK's IP IS NOT SET YET!");
 	        					ipServer = "[fe80:0000:0000:0000:c30c:0000:0000:0001]";
-	        					//clienthelper.setSink(ipServer);
+	        					//clienthelper.setSink(ipServer); //TODO:Redundant? Sink is always found
 	        				}
 	        				clienthelper.checkEdge(ipServer,ip2);
 	        			}else { /* ip1 != ip2 */
 	            			clienthelper.onlyAddNodeifNotExist(ip1); 
 	            			clienthelper.checkNode(ip2);  
-	        			}
-	        			
-	        		}/* end if InPut.startsWith("Route") */
-	        		 
+	        			}        			
+	        		}/* end if InPut.startsWith("Route") */	        		 
 	            	else 
 	            	if(inComingLine.startsWith("NP")){
 	        			try{
@@ -167,20 +163,19 @@ public class Client implements Runnable{
 	        			}
 	        		}
 	        		else
+	        		/* Info from Attacker(s) when they Start/Stop. Only for logging */	
+	        		if(inComingLine.startsWith("DATA Intercept")){ 
+        				Main.debugEssential(inComingLine);
+        			}
+	        		else
 	        		if(inComingLine.startsWith("[SI:")){ /* ICMP statistics coming from node */
 	        			try{
 	        				String[] parts = inComingLine.split(" from ",2);
 	        				String nodeAlive = parts[1];	        				
 	        				
 		        			if(clienthelper.legitIncomIP(nodeAlive)) {
-		        				
-		        				
-		        				
 		        				// this creates a DOUBLE NODE !!!!!
 		        				//clienthelper.checkNode(nodeAlive); /* it will also reset the keepAliveTimer */	
-		        				
-		        				
-		        				
 		        				parts = parts[0].split(":",2);
 		        				parts = parts[1].split(" ",2);
 		        				String ICMPRecv = parts[0];
@@ -191,7 +186,6 @@ public class Client implements Runnable{
 		        			}
 	
 	        			}catch (ArrayIndexOutOfBoundsException e) {
-	        				//debug("Could not break apart: "+inComingLine);
 	        				debug("SI line problem: "+e.toString());
 	        			}
 	        		}
@@ -201,35 +195,28 @@ public class Client implements Runnable{
 					clienthelper.probeForHiddenEdges(roundsCounter);
 					clienthelper.printEdgesInfo(roundsCounter);
 	
-/******** Checking for nodes with degree == 0 occasionally****************/
+/******** Checking for orphan nodes (InDegree = 0) occasionally****************/
 	        		if(roundsCounter%20==0) {/* Every fifty rounds */
 		        		clienthelper.getInDegrees(roundsCounter); /* Just in case there is someone hiding? */
 		        		
-		        		//TODO: This is not needed anymore?
+		        		//TODO: This is not needed anymore since we have spanning tree?
 	        		}
 /********* IP of sink was probably lost by now. Hardwire it...*********/      
-	        		
-	        		
-	        		/*
+	        		/* So far, it was never lost. If it happens, uncomment it
 	        		if(roundsCounter > 9 && ipServer == null){
 	        			ipServer = "[fe80:0000:0000:0000:0212:7401:0001:0101]";
 	        			debug("R:"+roundsCounter+" Setting ipServer by value...");
 	        			clienthelper.setSink(ipServer);
 	        		}
 	        		*/
-	        		
-	        		
-	        		
-	        		
-	        		
 /*********************kMeans on UDPRecv. Clustering =2 ********/        		
 	        		
 	        		
 	        		
 	        		
 	        		
-	        		if(roundsCounter > 15)
-	        			clienthelper.runKMeans(2); 
+	        		//if(roundsCounter > 15)
+	        		//	clienthelper.runKMeans(2); 
 	        		
 	        		
 	        		
@@ -253,12 +240,11 @@ public class Client implements Runnable{
     	
     }/* end run() */
 /**************END OF run()***********************************/
-    
+ 
     public void setExit(boolean exit) {
     	/* stopping the runnable Client */
     	this.exit = exit;
     }
-
 /***************************************************************************/    
 	private void debug(String message){
 		Main.debug((message));

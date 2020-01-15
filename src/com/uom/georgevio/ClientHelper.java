@@ -35,6 +35,7 @@ public class ClientHelper {
 	DecimalFormat df = new DecimalFormat();
 		
 	public ClientHelper() { /* constructor */
+		Main.debugEssentialTitle("Time\t\tNode\tInEdges\tLastSeen(sec)\tUDPRecv\tICMPin\tICMPout");
 	}
 	
 /***************************************************************************/
@@ -123,8 +124,7 @@ public class ClientHelper {
 		/* Print every six rounds, AFTER a "grace" period. At the beginning
 		 * the network is still converging.
 		 */	
-		if(roundsCounter%6 == 0 && appTimeStarted > 2*Main.keepAliveNodeBound) { 
-			
+		if(roundsCounter%6 == 0 && appTimeStarted > 2*Main.keepAliveNodeBound) { 			
 			debug("R:"+roundsCounter+" -------Nodes - I/O Edges---------------");
 
 			/* Also can get data from Stream<Nodes> */
@@ -132,6 +132,8 @@ public class ClientHelper {
 					.filter(node -> node.getId() != ipServer) /* Sink should not be probed */
 				    .collect(Collectors.toList());
 
+			/* this has to be printed only once in the relative file? */
+			//Main.debugEssential("Time\tNode\tInEdges\tLastSeen(sec)\tUDPRecv\tICMPin\tICMPout");			
 			for (Node node : nodes) {
 
 				inDegree = node.getInDegree();
@@ -154,6 +156,12 @@ public class ClientHelper {
 							secs+" sec. UDPRecv "+UDPRecv+
 							"\tICMP I/O: "+ICMPRecv+", "+ICMPSent
 					 ); 
+
+				/* file for easy extraction of stats only */
+				Main.debugEssential(shortNodeName+"\t\t\t"+inDegree+"\t\t\t"+
+						secs+"\t\t\t"+UDPRecv+
+						"\t\t\t"+ICMPRecv+"\t\t\t"+ICMPSent
+						); 
 
 				if (keepAliveTimer < Main.keepAliveNodeBound) { 
 					/* Node reappears, or appears for first time */
@@ -183,10 +191,11 @@ public class ClientHelper {
 						graph.removeNode(node);
 					}						
 				}
-			
 			}
 			debug("------Nodes:"+nodesNum+"------inComing Edges:"+edgesNum+"-------------\n\n");
 
+			Main.debugEssential(" ");
+			
 			Main.nodesOutput((Integer.toString(nodesNum)));
 			Main.edgesOutput((Integer.toString(edgesNum)));
 			Main.totalOutDegreesOutput((Integer.toString(totalOutDegrees)));
@@ -346,24 +355,25 @@ public class ClientHelper {
 		}	
 	}
 /***************************************************************************/	
-/***************************************************************************/
 	public void addICMPStats(String nodeId, String inICMP, String outICMP) {
 		try{
 			Node node = graph.getNode(nodeId);
-
+			int oldICMPSent = (int)node.getAttribute("ICMPSent");
+			int oldICMPRecv = (int)node.getAttribute("ICMPRecv");
+			
+			/* Those numbers come accumulated (Since the beggining of the simulation */
 			node.setAttribute("ICMPSent", 
-						Integer.parseInt(outICMP) - (int)node.getAttribute("ICMPSent")	
+						Integer.parseInt(outICMP)// - (int)node.getAttribute("ICMPSent")	
 					);
 
 			node.setAttribute("ICMPRecv", 
-						Integer.parseInt(inICMP) - (int)node.getAttribute("ICMPRecv")
+						Integer.parseInt(inICMP)// - (int)node.getAttribute("ICMPRecv")
 					);
 			
 		}catch (Exception e) {
 			debug("Node "+IPlastHex(nodeId)+": "+e.toString());
 		}
 	}
-/***************************************************************************/
 /***************************************************************************/	
 	public int getICMPSent(String node) {
 		return (int) graph.getNode(node).getAttribute("ICMPSent");
@@ -384,8 +394,7 @@ public class ClientHelper {
 		}
 	}
 /***************************************************************************/	
-	/* Convert the last part of IPv6 to DEC for short print */
-/***************************************************************************/	
+	/* Convert the last part of IPv6 to DEC for short print */	
 	public int IPlastHex(String IPv6) {
 		int decValue = 0;
 		int index = IPv6.lastIndexOf(":");
@@ -420,7 +429,6 @@ public class ClientHelper {
 		}
 	}
 /***************************************************************************/	
-/***************************************************************************/
 	/* Remove and old edge (Normally, the node changed parent) */
 	public void removeEdgeifExists(Edge edge) { /* polymorphism */
 		try {
@@ -429,14 +437,12 @@ public class ClientHelper {
 			debug(e.toString());
 		}
 	}
-/***************************************************************************/	
-/***************************************************************************/	
+/***************************************************************************/		
 	public boolean legitIncomIP(String incomingIP) {
     	/* if chars 1-4 in str1 match chars 1-4 in str2 */
     	return incomingIP.regionMatches(1, ipServer, 1, 4);
     }
 /***************************************************************************/
-/***************************************************************************/	
 	public void printEdgesOnly(int roundsCounter, long timeStart){ //TODO: Redundant method ??? Below method is enough?
 		int nodesNum = graph.getNodeCount();
 		int edgesNum = graph.getEdgeCount();
@@ -469,7 +475,6 @@ public class ClientHelper {
 		return bytes;
 	}
 /***************************************************************************/    
-/***************************************************************************/
 	private void debug(String message){
 		Main.debug((message));
 	}
