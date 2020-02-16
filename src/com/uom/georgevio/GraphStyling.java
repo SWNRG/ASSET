@@ -70,7 +70,7 @@ public class GraphStyling {
 						  +"shadow-width:0;"
 						  +"shadow-color:#C9C9C9;";
 
-	String underAttackNodeCSS = "shape:diamon;"
+	String underAttackNodeCSS = "shape:diamond;"
 							  + "fill-color: #FF0000, #C9C9C9; "
 							  + "fill-mode: gradient-diagonal1; "
 							  + "size:45px; "

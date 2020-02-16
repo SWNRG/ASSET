@@ -19,14 +19,20 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
+import com.fazecast.jSerialComm.SerialPort;
+
 public class Main extends Application {
-	//TODO: Find an algorithm to detect loops and no connection to sink
+	//TODO: Find an algorithm to detect no connection to sink
 
 	static LogService logservice = new LogService();
 	private static final boolean logging2File = true;
 	
 	/* if true all output will be sent to console, else to standard output */
 	public static final boolean consoleOutputTrue = true;
+	
+	SerialPort motePort = null; /* will be set by the Client class */
+	
+	public static final long appTimeStarted = System.currentTimeMillis(); /* Time this Application first started */
 	
 	public static final long keepAliveNodeBound = 80000;
 	public static final long grayZoneNodeBound = 150000;

@@ -17,7 +17,7 @@ public class ClientHelper {
 	private String ipServer = null; /* hardwire the sink's IP if not found */
 	
 	SerialPort motePort = null; /* will be set by the Client class */
-	private static final long appTimeStarted = System.currentTimeMillis(); /* Time this Application first started */
+	
 	private long timeReprobeEdgesCounter = System.currentTimeMillis(); /* ??? */
 	
 	GraphStyling graphstyling = new GraphStyling();
@@ -79,7 +79,7 @@ public class ClientHelper {
 		int edgesNum = graph.getEdgeCount();
 		
 		/* Initial delay ??? mins, every ??? mins, hence, after the network has "settled" down */
-		if (System.currentTimeMillis()  > appTimeStarted + Main.keepAliveNodeBound && 
+		if (System.currentTimeMillis()  > Main.appTimeStarted + Main.keepAliveNodeBound && 
 				System.currentTimeMillis() > timeReprobeEdgesCounter+ Main.keepAliveNodeBound / 2 ) {
 
 			timeReprobeEdgesCounter = System.currentTimeMillis();
@@ -128,7 +128,7 @@ public class ClientHelper {
 		/* Print every six rounds, AFTER a "grace" period. At the beginning
 		 * the network is still converging.
 		 */	
-		if(roundsCounter%6 == 0 && appTimeStarted > 2*Main.keepAliveNodeBound) { 			
+		if(roundsCounter%6 == 0 && Main.appTimeStarted > 2*Main.keepAliveNodeBound) { 			
 			debug("R:"+roundsCounter+" -------Nodes - I/O Edges---------------");
 
 			/* Also can get data from Stream<Nodes> */
@@ -226,17 +226,19 @@ public class ClientHelper {
 			try { /* bring back here the mother-nodes to color accordingly */
 	
 				List<Node> motherNodes = clustermonitor.kMeans(clusters, nodes);
-				for(Node node : motherNodes) {
-					graphstyling.nodeColorMother(node);
-				}
-				
-				List<Node> attackedNodes = clustermonitor.getClusterWithAttackedNodes();
-				for(Node node : attackedNodes) {
-					graphstyling.nodeUnderAttack(node);
-					printNodeDetails(node);
+				if(motherNodes.size()>0) {
+					for(Node node : motherNodes) {
+						graphstyling.nodeColorMother(node);
+					}
+					
+					List<Node> attackedNodes = clustermonitor.getClusterWithAttackedNodes();
+					for(Node node : attackedNodes) {
+						graphstyling.nodeUnderAttack(node);
+						printNodeDetails(node);
+					}
 				}
 			} catch (Exception e) {
-				debug(e.toString());
+				debug("ClientHelper: "+e.toString());
 			}
 	}	
 /***************************************************************************/	
@@ -472,10 +474,10 @@ public class ClientHelper {
 /***************************************************************************/	
 	public void printNodeDetails(Node node) {
 		debug("Node "+IPlastHex(node.getId())+" Edges: ");
-		List<Edge> edges = (List<Edge>) node.edges();
-		for (Edge edge: edges) {
-			debug("Edge: "+edge);
-		}
+		node.edges().forEach(edge->{
+			debug("N0:"+IPlastHex(edge.getNode0().toString())+
+				  ", N1:"+IPlastHex(edge.getNode1().toString()));
+		});
 	}
 /***************************************************************************/	
 	public void colorMotherNode(Node node) {

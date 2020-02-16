@@ -1,5 +1,6 @@
 package com.uom.georgevio;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -22,26 +23,20 @@ import org.graphstream.graph.Node;
  * which in return communicates them with all nodes to avoid using them as "parents".
  * */
 
-public class FindConnectedComponents {
+public class FindConnectedComponents { 
 	
 	private Graph graph;
 	
-	ConnectedComponents cc = new ConnectedComponents();
-	
-	private List<Node> motherNodes;
-	
-	GraphStyling graphStyling = new GraphStyling();
-	
+	ConnectedComponents cc = new ConnectedComponents(); /* graphstream algo using Kosaraju style */
+
 	FindConnectedComponents(Graph graph){
 		this.graph = graph; 
 	}
 	
-	public List<Node> getMotherNodes(){
-		return motherNodes;
-	}
+	public List<Node> findCC() {
 	
-	public void findCC() {
-	
+		List<Node> motherNodes = new ArrayList<>();
+		
 		cc.init(graph);
 		cc.compute(); 	
 		int ccGraphEnum = cc.getConnectedComponentsCount();
@@ -52,20 +47,33 @@ public class FindConnectedComponents {
 			Node n = nodess.next();
 			String comp = cc.getConnectedComponentOf(n).toString();
 			comp = comp.substring(comp.lastIndexOf("#")+1); //components numbering from zero
-			debug("Node: "+n+" in component No "+comp);
+			debug("Node: "+IPlastHex(n.toString())+" belongs to component No "+comp);
 			try {
+				debug("FCC: Searching Node "+IPlastHex(n.toString())+" for incoming edges");
 				Edge e = n.getEnteringEdge(0);
 				
 				//TODO: Do we need the edges of the node under attack?
 				
 			}catch(IndexOutOfBoundsException NE) {
-				debug("Node "+n+" is a 'mother node'. Colored accordingly");
-				
+				debug("FCC: Node "+n+" nominated as a 'mother node'.");
 				motherNodes.add(n);
 			}
 		}
+		return motherNodes;
 	}
-
+/***************************************************************************/
+	/* Convert the last part of IPv6 to DEC for short print */
+	private int IPlastHex(String IPv6) {
+		int decValue = 0;
+		int index = IPv6.lastIndexOf(":");
+		String lastPart = IPv6.substring(index+3,index+5);// last hex number (e.g. 0e0e)
+		try{
+			decValue = Integer.valueOf(lastPart,16);
+		}catch(NumberFormatException e) {
+			debug(e.toString());
+		}
+		return decValue;
+	}  
 /***************************************************************************/    
 	private void debug(String message){
 		Main.debug((message));

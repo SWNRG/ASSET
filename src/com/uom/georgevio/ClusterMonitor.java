@@ -196,11 +196,10 @@ public class ClusterMonitor{
  * mother of each cluster. This mother is the attacker(s)
  */					
 			FindConnectedComponents fCC = new FindConnectedComponents(graph2Check);
-			fCC.findCC();
-			motherNodes = fCC.getMotherNodes();
+			motherNodes = fCC.findCC();
 
 			for(Node node : motherNodes) { /* be careful, they are not the same nodes, just same name */
-				debug("node to be mother-colored:"+node);
+				debug("Cluster Mon: node to be mother-colored:"+node);
 			}
 		}// if(cluster0.size()>2) 
 		return motherNodes;

@@ -195,8 +195,8 @@ public class Client implements Runnable{
 	        		
 	        		
 	        		
-	        		
-	        		if(roundsCounter > 15)
+	        		if(Main.appTimeStarted > 2*Main.keepAliveNodeBound)
+	        		//if(roundsCounter > 25)
 	        			clienthelper.runKMeans(2); /* BE CAREFUL: Nothing else than two for now */
 	        		
 	        		
