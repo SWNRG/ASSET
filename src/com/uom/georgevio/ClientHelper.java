@@ -224,9 +224,7 @@ public class ClientHelper {
 			    .collect(Collectors.toList());
 
 			try { /* bring back here the mother-nodes to color accordingly */
-				
-				
-				
+	
 				List<Node> motherNodes = clustermonitor.kMeans(clusters, nodes);
 				for(Node node : motherNodes) {
 					graphstyling.nodeColorMother(node);
@@ -236,10 +234,7 @@ public class ClientHelper {
 				for(Node node : attackedNodes) {
 					graphstyling.nodeUnderAttack(node);
 					printNodeDetails(node);
-					
 				}
-			/* bring here all nodes in all clusters to print their details */
-			
 			} catch (Exception e) {
 				debug(e.toString());
 			}

@@ -147,7 +147,6 @@ public class GraphStyling {
 		node.setAttribute("ui.label", IPlastHex(inNode)); /* id of node in the graph */
 	}
 /***************************************************************************/	
-	
 	public Edge edgeColorRed(String inEdge) {	
 		Edge edge = graph.getEdge(inEdge);
 		edge.setAttribute("ui.style","fill-color:red;"
