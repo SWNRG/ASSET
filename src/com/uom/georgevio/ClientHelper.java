@@ -10,8 +10,6 @@ import org.graphstream.graph.Edge;
 import org.graphstream.graph.ElementNotFoundException;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
-import org.omg.CORBA.Current;
-
 import com.fazecast.jSerialComm.SerialPort;
 
 public class ClientHelper {
@@ -33,7 +31,13 @@ public class ClientHelper {
 	Send2Serial send2serial; 
 	
 	DecimalFormat df = new DecimalFormat();
-		
+	
+	DataAnalysis datanalys = new DataAnalysis(); //not used
+	
+	ChebyshevInequality chebIneq = new ChebyshevInequality();
+	
+	Object2Double object2double = new Object2Double();
+	
 	public ClientHelper() { /* constructor */
 		Main.debugEssentialTitle("Time\t\tNode\tInEdges\tLastSeen(sec)\tUDPRecv\tICMPin\tICMPout");
 	}
@@ -147,6 +151,7 @@ public class ClientHelper {
 					UDPRecv = (int) node.getAttribute("UDPRecv");
 					ICMPSent = (int) node.getAttribute("ICMPSent");
 					ICMPRecv = (int) node.getAttribute("ICMPRecv");
+
 				}catch (NullPointerException e) {
 					debug("Node "+IPlastHex(node.getId())+" "+e.toString());
 				}
@@ -202,14 +207,39 @@ public class ClientHelper {
 		}   
 	}
 /***************************************************************************/		
+	/* Running kMeans algorithm on nodes UDP received by the controller data.
+	 * Step 1: If kMeans returns two clusters with confidence, this means that nodes
+	 * are under attack since their UDP mean is an outlier. In this case we
+	 * dont know how many "neighborhoods" of nodes are attacked.
+	 * Step 2: We need to run Kosaraju alrgorithm to classify strongly connected components,
+	 * aka how many different neighborhoods or clusters of nodes we have. 
+	 * Step 3: we need to find the "mother* of each subgraph. This mother is the attacker.
+	 * Step 4: send this "mother to all nodes as an attacker(s) so nodes can just exclude 
+	 * it from being selected as a parent 
+	 */
 	public void runKMeans(int clusters) {
 
 		List<Node> nodes = graph.nodes()
 				.filter(node -> node.getId() != ipServer) 
 			    .collect(Collectors.toList());
 
-			try {
-				clustermonitor.kMeans(clusters, nodes);
+			try { /* bring back here the mother-nodes to color accordingly */
+				
+				
+				
+				List<Node> motherNodes = clustermonitor.kMeans(clusters, nodes);
+				for(Node node : motherNodes) {
+					graphstyling.nodeColorMother(node);
+				}
+				
+				List<Node> attackedNodes = clustermonitor.getClusterWithAttackedNodes();
+				for(Node node : attackedNodes) {
+					graphstyling.nodeUnderAttack(node);
+					printNodeDetails(node);
+					
+				}
+			/* bring here all nodes in all clusters to print their details */
+			
 			} catch (Exception e) {
 				debug(e.toString());
 			}
@@ -267,6 +297,13 @@ public class ClientHelper {
 				graph.getNode(nodeId).setAttribute("UDPRecv",0);
 				graph.getNode(nodeId).setAttribute("ICMPSent",0);
 				graph.getNode(nodeId).setAttribute("ICMPRecv",0);
+				
+				/* store last icmp numbers, in order to calculate moving average */
+				graph.getNode(nodeId).setAttribute("icmpArraySent", 
+						new CircularQueue(Main.meanICMPHistoryKept)); /* size parameter */
+				graph.getNode(nodeId).setAttribute("icmpArrayRecv", 
+						new CircularQueue(Main.meanICMPHistoryKept));				
+				graph.getNode(nodeId).setAttribute("isOutlier",false);
 			}
 			
 			answer = true; 
@@ -310,6 +347,13 @@ public class ClientHelper {
 				graph.getNode(nodeId).setAttribute("avgTimeSeen",0.0);
 				graph.getNode(nodeId).setAttribute("keepAliveTimer",currentTime);
 				
+				/* store last icmp numbers, in order to calculate moving average */
+				graph.getNode(nodeId).setAttribute("icmpArraySent", 
+						new CircularQueue(Main.meanICMPHistoryKept)); /* size parameter */
+				graph.getNode(nodeId).setAttribute("icmpArrayRecv", 
+						new CircularQueue(Main.meanICMPHistoryKept));				
+				graph.getNode(nodeId).setAttribute("isOutlier",false);
+				
 				answer = true; 
 	 
 			} else { /* node exists, just reset timers */
@@ -318,8 +362,10 @@ public class ClientHelper {
 				graph.getNode(nodeId).setAttribute("keepAliveTimer",currentTime);
 				
 				/* Node has just responded as a child, hence it is not only parent */
-				if ( (boolean) graph.getNode(nodeId).getAttribute("parentOnly"))
+				if ( (boolean) graph.getNode(nodeId).getAttribute("parentOnly")) {
 						graph.getNode(nodeId).setAttribute("parentOnly", false);
+						graphstyling.nodeStyle(nodeId);	/* node is regular now (not parent) */
+				}
 				
 				double curAvgTimeSeen = (double) graph.getNode(nodeId).getAttribute("avgTimeSeen");
 							
@@ -344,7 +390,8 @@ public class ClientHelper {
 				
 				for(Edge edge : edges){
 					Node oldParent = edge.getSourceNode();
-					debug("Removing an old edge: "+oldParent.toString()+"-->"+ip2);
+					debug("Removing an old edge: "
+							+IPlastHex(oldParent.toString())+"-->"+IPlastHex(ip2));
 					removeEdgeifExists(oldParent.toString(),ip2);
 				} 
 			}
@@ -357,11 +404,12 @@ public class ClientHelper {
 /***************************************************************************/	
 	public void addICMPStats(String nodeId, String inICMP, String outICMP) {
 		try{
+
 			Node node = graph.getNode(nodeId);
 			int oldICMPSent = (int)node.getAttribute("ICMPSent");
 			int oldICMPRecv = (int)node.getAttribute("ICMPRecv");
 			
-			/* Those numbers come accumulated (Since the beggining of the simulation */
+			/* Those numbers come accumulated (Since the beginning of the simulation */
 			node.setAttribute("ICMPSent", 
 						Integer.parseInt(outICMP)// - (int)node.getAttribute("ICMPSent")	
 					);
@@ -374,12 +422,92 @@ public class ClientHelper {
 			debug("Node "+IPlastHex(nodeId)+": "+e.toString());
 		}
 	}
+
+/***************************************************************************/		
+	public void addICMPArrays(String nodeId, String inICMP, String outICMP) {
+		try{
+			Node node = graph.getNode(nodeId);
+			
+			/* Last accumulated values stored */
+			int getLastSent = getLastICMPSent(nodeId);
+			int getLastRecv = getLastICMPRecv(nodeId);
+			
+			CircularQueue circularqueueSent = node.getAttribute("icmpArraySent", CircularQueue.class);
+			CircularQueue circularqueueRecv = node.getAttribute("icmpArrayRecv", CircularQueue.class);
+
+			/* Those are the latest differences between the stored and the incoming values */
+			getLastSent = Integer.parseInt(outICMP) - getLastSent;
+			getLastRecv = Integer.parseInt(inICMP) - getLastRecv;
+			
+			/* queue remains untouched */
+			Object[] sentArray = circularqueueSent.toArray();
+			Object[] recvArray = circularqueueRecv.toArray();
+			
+			if(circularqueueSent.size() == Main.meanICMPHistoryKept) { /* Let the network stabilize */
+				//df.format(double number)
+
+				double[] doubleSentArray = object2double.convert(sentArray);
+				double[] doubleRecvArray = object2double.convert(recvArray);
+						
+				/* Both standard deviations must be outliers */
+				if(chebIneq.isOutlier(((double)getLastSent), doubleSentArray, IPlastHex(nodeId)) &&
+				   chebIneq.isOutlier(((double)getLastRecv), doubleRecvArray, IPlastHex(nodeId))){
+						debugBoth("Node "+IPlastHex(nodeId)+" BOTH ISOUTLIER = 1. POSSIBLE ATTACK...");
+						node.setAttribute("isOutlier",true);
+				}
+				//else
+					//debug("Node "+IPlastHex(nodeId)+" is within Chebyshev limits");
+				
+			}	
+			
+			/* Current incoming accumulated values. Store these now for the next round */
+			setICMPSent(nodeId, outICMP);
+			setICMPRecv(nodeId,inICMP);
+
+			/* storing the difference between old <--> new value */
+			circularqueueSent.add(getLastSent);
+			circularqueueRecv.add(getLastRecv);
+
+		}catch (Exception e) { 
+			e.printStackTrace();
+			debug("EXCEPTION for Node "+IPlastHex(nodeId)+": "+e.toString());
+		}
+	}
+
 /***************************************************************************/	
-	public int getICMPSent(String node) {
+	public void printNodeDetails(Node node) {
+		debug("Node "+IPlastHex(node.getId())+" Edges: ");
+		List<Edge> edges = (List<Edge>) node.edges();
+		for (Edge edge: edges) {
+			debug("Edge: "+edge);
+		}
+	}
+/***************************************************************************/	
+	public void colorMotherNode(Node node) {
+		graphstyling.nodeColorMother(node);
+	}
+/***************************************************************************/	
+	public void setICMPSent(String nodeId, String outICMP) {	
+		Node node = graph.getNode(nodeId);
+		/* Those numbers come accumulated (Since the beginning of the simulation */
+		node.setAttribute("ICMPSent", 
+					Integer.parseInt(outICMP)// - (int)node.getAttribute("ICMPSent")	
+				);
+	}
+/***************************************************************************/	
+	public void setICMPRecv(String nodeId, String inICMP) {
+		Node node = graph.getNode(nodeId);
+		
+		node.setAttribute("ICMPRecv", 
+					Integer.parseInt(inICMP)// - (int)node.getAttribute("ICMPRecv")
+				);	
+	}	
+/***************************************************************************/	
+	public int getLastICMPSent(String node) {
 		return (int) graph.getNode(node).getAttribute("ICMPSent");
 	}
 /***************************************************************************/
-	public int getICMPRecv(String node) {
+	public int getLastICMPRecv(String node) {
 		return (int) graph.getNode(node).getAttribute("ICMPRecv");
 	}
 /***************************************************************************/	
@@ -415,12 +543,8 @@ public class ClientHelper {
 			debug(e.toString());
 		}
 	}
-/***************************************************************************/
-	/* Remove and old edge (Normally, the node changed parent) */
 /***************************************************************************/	
-	/* sometimes an IP "0000" comes along, but we need to compare it
-	 * with the SINK's IP, hence AFTER the sink IP is first set
-	 */
+	/* Remove and old edge (Normally, the node changed parent) */
 	public void removeEdgeifExists(Node from, Node to) { /* polymorphism */
 		try {
 			graph.removeEdge(from, to);
@@ -477,5 +601,10 @@ public class ClientHelper {
 /***************************************************************************/    
 	private void debug(String message){
 		Main.debug((message));
+	}
+/***************************************************************************/    
+	private void debugBoth(String message) {
+		Main.debug(message);
+		Main.debugEssential(message);
 	}
 }

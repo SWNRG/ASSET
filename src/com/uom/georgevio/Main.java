@@ -30,6 +30,9 @@ public class Main extends Application {
 	
 	public static final long keepAliveNodeBound = 80000;
 	public static final long grayZoneNodeBound = 150000;
+	
+	/* How many previous ICMP mean values to keep in order to check Chebyshev outliers */
+	public static final int meanICMPHistoryKept = 7;
 
 	Stage primaryStageLocal = new Stage();
 	

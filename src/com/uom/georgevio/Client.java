@@ -1,29 +1,7 @@
 package com.uom.georgevio;
 
 import com.fazecast.jSerialComm.SerialPort;
-import javafx.scene.Scene;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
-
-import org.apache.commons.math.stat.clustering.Cluster;
-import org.graphstream.graph.Edge;
-import org.graphstream.graph.ElementNotFoundException;
-import org.graphstream.graph.Graph;
-import org.graphstream.graph.Node;
-import org.graphstream.ui.fx_viewer.FxViewPanel;
-import org.graphstream.ui.fx_viewer.FxViewer;
-import org.graphstream.ui.javafx.FxGraphRenderer;
-import org.graphstream.ui.view.Viewer;
-
-import java.net.InetAddress;
-import java.text.SimpleDateFormat;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Scanner;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class Client implements Runnable{
 
@@ -40,7 +18,7 @@ public class Client implements Runnable{
 	SerialPort motePort = null;
 	
 	ClusterMonitor clustermonitor;
-	
+		
     @Override
     public void run(){
     	
@@ -182,7 +160,10 @@ public class Client implements Runnable{
 		        				String ICMPSent =  parts[1].substring(0, parts[1].length() - 1); /* remove ']' */
 		        				
 		        				/* keep the num of Send/Recv ICMP packets */
-		        				clienthelper.addICMPStats(nodeAlive, ICMPRecv, ICMPSent); 
+		        				//clienthelper.addICMPStats(nodeAlive, ICMPRecv, ICMPSent); 
+		        				
+		        				// using an array now, not one old value above
+		        				clienthelper.addICMPArrays(nodeAlive, ICMPRecv, ICMPSent);
 		        			}
 	
 	        			}catch (ArrayIndexOutOfBoundsException e) {
@@ -193,8 +174,8 @@ public class Client implements Runnable{
 /*************** PRINTOUTS **********************************/		
 	
 					clienthelper.probeForHiddenEdges(roundsCounter);
-					clienthelper.printEdgesInfo(roundsCounter);
-	
+					//clienthelper.printEdgesInfo(roundsCounter);
+
 /******** Checking for orphan nodes (InDegree = 0) occasionally****************/
 	        		if(roundsCounter%20==0) {/* Every fifty rounds */
 		        		clienthelper.getInDegrees(roundsCounter); /* Just in case there is someone hiding? */
@@ -215,8 +196,8 @@ public class Client implements Runnable{
 	        		
 	        		
 	        		
-	        		//if(roundsCounter > 15)
-	        		//	clienthelper.runKMeans(2); 
+	        		if(roundsCounter > 15)
+	        			clienthelper.runKMeans(2); /* BE CAREFUL: Nothing else than two for now */
 	        		
 	        		
 	        		
@@ -240,12 +221,12 @@ public class Client implements Runnable{
     	
     }/* end run() */
 /**************END OF run()***********************************/
- 
+/************************************************************/   
     public void setExit(boolean exit) {
     	/* stopping the runnable Client */
     	this.exit = exit;
     }
-/***************************************************************************/    
+/************************************************************/    
 	private void debug(String message){
 		Main.debug((message));
 	}

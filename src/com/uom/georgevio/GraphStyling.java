@@ -10,30 +10,18 @@ public class GraphStyling {
 	
 	private Graph graph = new SingleGraph("Graph");
 	
-	Viewer viewer ;
+	Viewer viewer;
 	
-	public GraphStyling() { /* constructor */
-		
-		
-		
-		
-		viewer = graph.display(true); /* show the graph in a standalone window */
-		viewer.enableAutoLayout();
+	private boolean viewerStarted = false;
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+	public GraphStyling() { /* empty constructor */
+		if(!viewerStarted) {
+			viewInit(); /* Singleton */
+			viewerStarted = true;
+		}
 	}
 	
-	String sinkNodeCSS =  "shape:circle;"
+	String sinkNodeCSS  = "shape:circle;"
 						+ "fill-color: green, orange; "
 						+ "fill-mode: gradient-diagonal1; "
 						+ "size:45px; "
@@ -41,7 +29,7 @@ public class GraphStyling {
 						+ "text-style:bold; "
 						+ "text-color:blue; "
 						+ "text-size:15px;";
-	
+		
 	String normalNodeCSS = "shape:circle; " 
 						+ "	fill-color:yellow, orange; "
 						+ " fill-mode: gradient-diagonal1; " 
@@ -69,6 +57,38 @@ public class GraphStyling {
 						  + "text-style:bold; "
 						  + "text-size:15px;";
 
+	String motherNodeCSS =  "shape:cross;"
+						  + "fill-color: #ff4100, #ff4100; "
+						  + "fill-mode: gradient-diagonal1; "
+						  + "size:45px; "
+						  + "text-alignment: center; "
+						  + "text-color:white; "
+						  + "text-style:bold; "
+						  + "text-size:15px;"
+			       		  + "shadow-mode:plain;"
+						  + "shadow-offset: 4,4;"
+						  +"shadow-width:0;"
+						  +"shadow-color:#C9C9C9;";
+
+	String underAttackNodeCSS = "shape:diamon;"
+							  + "fill-color: #FF0000, #C9C9C9; "
+							  + "fill-mode: gradient-diagonal1; "
+							  + "size:45px; "
+							  + "text-alignment: center; "
+							  + "text-color:white; "
+							  + "text-style:bold; "
+							  + "text-size:15px;"
+				     		  + "shadow-mode:plain;"
+							  + "shadow-offset: 4,4;"
+							  +"shadow-width:0;"
+							  +"shadow-color:#C9C9C9;";
+
+/***************************************************************************/	
+	public void viewInit() {
+		viewer = graph.display(true); /* show the graph in a standalone window */
+		viewer.enableAutoLayout();
+	}
+/***************************************************************************/	
 	public void removeView() {
 		viewer.close();
 	}
@@ -105,15 +125,37 @@ public class GraphStyling {
 		inNode.setAttribute("ui.label", IPlastHex(inNode.getId())); /* id of node in the graph */
 	}
 /***************************************************************************/	
+	public void nodeColorMother(Node inNode) {
+		inNode.setAttribute("ui.style", motherNodeCSS);
+		inNode.setAttribute("ui.label", IPlastHex(inNode.getId())); /* id of node in the graph */
+	}
+/***************************************************************************/	
+	public void nodeColorMother(String inNode) {/* polymorphism */
+		Node node =graph.getNode(inNode);
+		node.setAttribute("ui.style", motherNodeCSS);
+		node.setAttribute("ui.label", IPlastHex(inNode)); /* id of node in the graph */
+	}
+/***************************************************************************/	
+	public void nodeUnderAttack(Node inNode) {
+		inNode.setAttribute("ui.style", underAttackNodeCSS);
+		inNode.setAttribute("ui.label", IPlastHex(inNode.getId())); /* id of node in the graph */
+	}
+/***************************************************************************/	
 	public void sinkColor(String inNode) {
 		Node node =graph.getNode(inNode);
 		node.setAttribute("ui.style", sinkNodeCSS);
 		node.setAttribute("ui.label", IPlastHex(inNode)); /* id of node in the graph */
 	}
 /***************************************************************************/	
+	
 	public Edge edgeColorRed(String inEdge) {	
 		Edge edge = graph.getEdge(inEdge);
-		edge.setAttribute("ui.style","fill-color:red;");
+		edge.setAttribute("ui.style","fill-color:red;"
+	       		  		+ "shadow-mode:plain;"
+	       		  		+ "shadow-offset: 2,0;"
+				  		+ "shadow-width:0;"
+				  		+ "shadow-color:#C9C9C9;"
+		);
 		return edge;	
 	}
 /***************************************************************************/	
