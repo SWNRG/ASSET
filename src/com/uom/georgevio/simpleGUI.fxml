@@ -8,6 +8,7 @@
 <?import javafx.scene.control.SeparatorMenuItem?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleButton?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
@@ -15,7 +16,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Text?>
 
-<VBox prefHeight="934.0" prefWidth="1221.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.uom.georgevio.Controller">
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="802.0" prefWidth="709.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.uom.georgevio.Controller">
   <children>
     <MenuBar VBox.vgrow="NEVER">
       <menus>
@@ -56,9 +57,9 @@
         </Menu>
       </menus>
     </MenuBar>
-    <AnchorPane maxHeight="-1.0" maxWidth="-1.0" prefHeight="905.0" prefWidth="400.0" VBox.vgrow="ALWAYS">
+    <AnchorPane maxHeight="-1.0" maxWidth="-1.0" prefHeight="776.0" prefWidth="709.0" VBox.vgrow="ALWAYS">
       <children>
-            <TextArea fx:id="console" layoutY="177.0" prefHeight="726.0" prefWidth="579.0" />
+            <TextArea fx:id="console" layoutX="11.0" layoutY="171.0" prefHeight="760.0" prefWidth="670.0" />
             <TextField fx:id="nodes" layoutX="91.0" layoutY="20.0" prefHeight="26.0" prefWidth="60.0" />
             <TextField fx:id="edges" layoutX="94.0" layoutY="70.0" prefHeight="26.0" prefWidth="60.0" />
             <Text layoutX="12.0" layoutY="37.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Nodes" />
@@ -67,7 +68,7 @@
             <Text layoutX="18.0" layoutY="139.0" strokeType="OUTSIDE" strokeWidth="0.0" text="outDegree" />
             <Button fx:id="bttnStart" layoutX="198.0" layoutY="22.0" mnemonicParsing="false" text="Start" />
             <Accordion />
-            <GridPane layoutX="340.0" layoutY="171.0">
+            <GridPane layoutX="310.0" layoutY="177.0">
               <columnConstraints>
                 <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
                 <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -78,7 +79,10 @@
                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
               </rowConstraints>
             </GridPane>
-            <Button fx:id="bttnStop" layoutX="200.0" layoutY="121.0" mnemonicParsing="false" text="Stop" />
+            <Button fx:id="bttnStop" layoutX="200.0" layoutY="61.0" mnemonicParsing="false" text="Stop" />
+            <ToggleButton fx:id="toggleBttnkMeans" layoutX="274.0" layoutY="19.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="201.0" text="kMeans clustering on/off" />
+            <ToggleButton fx:id="toggleBttnPrintEdgesInfo" layoutX="274.0" layoutY="57.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="201.0" text="Print Edges Info on/off" />
+            <ToggleButton fx:id="toggleBttnChebysevIneq" layoutX="274.0" layoutY="96.0" mnemonicParsing="false" text="Chebyshev ineq ICMP on/off" />
       </children>
     </AnchorPane>
   </children>

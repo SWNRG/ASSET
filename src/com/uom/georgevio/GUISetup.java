@@ -36,7 +36,6 @@ public class GUISetup {
     	System.setProperty("org.graphstream.ui.renderer", "org.graphstream.ui.j2dviewer.J2DGraphRenderer");
     	System.setProperty("org.graphstream.ui", "javafx"); 
     	
-    	
     	this.primaryStage = primaryStage;
     	
     	//graph = new SingleGraph("Graph");
@@ -58,7 +57,6 @@ public class GUISetup {
         primaryStage.setScene(scene);
         primaryStage.show(); /* without this, the JavaGUI does not show */
 
-
         /*
     	FxViewer v = new FxViewer(graph, FxViewer.ThreadingModel.GRAPH_IN_ANOTHER_THREAD);
     	v.enableAutoLayout();
@@ -67,12 +65,8 @@ public class GUISetup {
     	primaryStage.setScene(scene);	
 		primaryStage.show();  */
 
-	
-
-
         //bttnStart.setOnAction(e->thread.start()); 	
-        
-        
+       
 	}	
 	
 	public TextArea getConsole() {
@@ -110,6 +104,5 @@ public class GUISetup {
 		}
 		else /* standard Java output */
 			System.out.println(formatTime(System.currentTimeMillis())+": "+ message+".");
-
 	}
 }

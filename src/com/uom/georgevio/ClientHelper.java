@@ -12,6 +12,9 @@ import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import com.fazecast.jSerialComm.SerialPort;
 
+import javafx.scene.Scene;
+import javafx.scene.control.ToggleButton;
+
 public class ClientHelper {
 
 	private String ipServer = null; /* hardwire the sink's IP if not found */
@@ -38,10 +41,11 @@ public class ClientHelper {
 	
 	Object2Double object2double = new Object2Double();
 	
+	//Scene mainScene = Main.getScene();
+
 	public ClientHelper() { /* constructor */
-		Main.debugEssentialTitle("Time\t\tNode\tInEdges\tLastSeen(sec)\tUDPRecv\tICMPin\tICMPout");
+		Main.debugEssentialTitle("Time\t\tNode\tInEdges\tLastSeen(sec)\tUDPRecv\tICMPin\tICMPout"); 
 	}
-	
 /***************************************************************************/
 	public void removeGraph() {
 		graphstyling.removeView();
@@ -66,6 +70,7 @@ public class ClientHelper {
 			/* Orphan node, probe it again. This will happen rarely */
 			if(node.getInDegree()== 0 && !(node.toString()).equals(ipServer)){
 				debug("R:"+roundsCounter+" Sneacky node with no incoming edge is "+IPlastHex(node.toString()));
+				
 				String message = "SP:"+node.toString()+"\n";
 				send2serial.sendSpecificMessage(message);
 				return true; /* found a sneaky hiding node and probed it */
@@ -89,7 +94,9 @@ public class ClientHelper {
 				
 				/* if there is no node with zero inDegree, last resort, probe for neighbors */
 				if(!getInDegrees(roundsCounter)) { 
-	
+					
+					debug("tried getInDegrees, now probeNeighbors...");
+
 					Stream<Node> nodesStr = graph.nodes();
 					Iterable<Node> nodes = nodesStr::iterator; 
 					send2serial.probeNeighbors(nodes);					
@@ -210,37 +217,59 @@ public class ClientHelper {
 	/* Running kMeans algorithm on nodes UDP received by the controller data.
 	 * Step 1: If kMeans returns two clusters with confidence, this means that nodes
 	 * are under attack since their UDP mean is an outlier. In this case we
-	 * dont know how many "neighborhoods" of nodes are attacked.
-	 * Step 2: We need to run Kosaraju alrgorithm to classify strongly connected components,
+	 * don't know how many "neighborhoods" of nodes are attacked.
+	 * Step 2: We need to run Kosaraju algorithm to classify strongly connected components,
 	 * aka how many different neighborhoods or clusters of nodes we have. 
 	 * Step 3: we need to find the "mother* of each subgraph. This mother is the attacker.
 	 * Step 4: send this "mother to all nodes as an attacker(s) so nodes can just exclude 
 	 * it from being selected as a parent 
 	 */
 	public void runKMeans(int clusters) {
-
+		
 		List<Node> nodes = graph.nodes()
 				.filter(node -> node.getId() != ipServer) 
 			    .collect(Collectors.toList());
 
-			try { /* bring back here the mother-nodes to color accordingly */
-	
-				List<Node> motherNodes = clustermonitor.kMeans(clusters, nodes);
-				if(motherNodes.size()>0) {
-					for(Node node : motherNodes) {
-						graphstyling.nodeColorMother(node);
-					}
-					
-					List<Node> attackedNodes = clustermonitor.getClusterWithAttackedNodes();
-					for(Node node : attackedNodes) {
+/* bring back here the mother-nodes to color accordingly */
+		
+		List<Node> motherNodes = null;
+		try {
+			motherNodes = clustermonitor.kMeans(clusters, nodes);
+		} catch (Exception e) {
+			debug("ClientHelper motherNodes creation problem:"+e.toString());
+		}
+		if(motherNodes !=null) {
+			try {
+				List<Node> attackedNodes = clustermonitor.getClusterWithAttackedNodes();
+				for(Node node : attackedNodes) {
+					if (!motherNodes.contains(node)) // it doesn't seem to work.. check again
 						graphstyling.nodeUnderAttack(node);
-						printNodeDetails(node);
+					
+					//printNodeDetails(node);
+					
+				}
+			} catch (Exception e) {
+				debug("ClientHelper attackedNodes problem: "+e.toString());
+			}
+			
+			try {
+				for(Node motherNode : motherNodes) {
+					//debug("ClientHelper: Attacker Node:"+IPlastHex(motherNode.toString()));
+					//printNodeDetails(motherNode);
+
+					for (Node n : nodes) {
+						/* they are not the SAME node, they have the same name?? */
+						if (motherNode.getId() == n.getId()) {
+							//debug("ClientHelper: Mother-coloring node: "+IPlastHex(n.getId()));
+							graphstyling.nodeColorMother(n);
+						}
 					}
 				}
 			} catch (Exception e) {
-				debug("ClientHelper: "+e.toString());
+				debug("ClientHelper motherNodes dublication problem: "+e.toString());
 			}
-	}	
+		}// if(!motherNodes.isEmpty())
+	}// public void runKMeans()
 /***************************************************************************/	
 	/* Print all nodes in the graph */
 	public void printAllNodes() {
@@ -416,7 +445,7 @@ public class ClientHelper {
 					);
 			
 		}catch (Exception e) {
-			debug("Node "+IPlastHex(nodeId)+": "+e.toString());
+			debug("addICMPStats error for Node "+IPlastHex(nodeId)+": "+e.toString());
 		}
 	}
 
@@ -445,16 +474,17 @@ public class ClientHelper {
 
 				double[] doubleSentArray = object2double.convert(sentArray);
 				double[] doubleRecvArray = object2double.convert(recvArray);
-						
-				/* Both standard deviations must be outliers */
-				if(chebIneq.isOutlier(((double)getLastSent), doubleSentArray, IPlastHex(nodeId)) &&
-				   chebIneq.isOutlier(((double)getLastRecv), doubleRecvArray, IPlastHex(nodeId))){
-						debugBoth("Node "+IPlastHex(nodeId)+" BOTH ISOUTLIER = 1. POSSIBLE ATTACK...");
-						node.setAttribute("isOutlier",true);
+					
+				if(Main.chebysevIneq) { /* GUI ToggleButton */
+					/* Both standard deviations must be outliers */
+					if(chebIneq.isOutlier(((double)getLastSent), doubleSentArray, IPlastHex(nodeId)) &&
+					   chebIneq.isOutlier(((double)getLastRecv), doubleRecvArray, IPlastHex(nodeId))){
+							debugBoth("Node "+IPlastHex(nodeId)+" Chebysev ICMP BOTH ISOUTLIER = 1. POSSIBLE ATTACK...");
+							node.setAttribute("isOutlier",true);
+					}
+					//else
+						//debug("Node "+IPlastHex(nodeId)+" is within Chebyshev limits");
 				}
-				//else
-					//debug("Node "+IPlastHex(nodeId)+" is within Chebyshev limits");
-				
 			}	
 			
 			/* Current incoming accumulated values. Store these now for the next round */
@@ -467,7 +497,7 @@ public class ClientHelper {
 
 		}catch (Exception e) { 
 			e.printStackTrace();
-			debug("EXCEPTION for Node "+IPlastHex(nodeId)+": "+e.toString());
+			debug("ClientHelper: addICMPArrays for Node "+IPlastHex(nodeId)+": "+e.toString());
 		}
 	}
 
@@ -476,7 +506,7 @@ public class ClientHelper {
 		debug("Node "+IPlastHex(node.getId())+" Edges: ");
 		node.edges().forEach(edge->{
 			debug("N0:"+IPlastHex(edge.getNode0().toString())+
-				  ", N1:"+IPlastHex(edge.getNode1().toString()));
+				  " --> N1:"+IPlastHex(edge.getNode1().toString()));
 		});
 	}
 /***************************************************************************/	
@@ -501,11 +531,23 @@ public class ClientHelper {
 	}	
 /***************************************************************************/	
 	public int getLastICMPSent(String node) {
-		return (int) graph.getNode(node).getAttribute("ICMPSent");
+		int val = 0;
+		try {
+			val = (int) graph.getNode(node).getAttribute("ICMPSent");
+		}catch (NullPointerException e){
+			debug("getLastICMPSent for node "+IPlastHex(node)+" "+e);
+		}
+		return val;
 	}
 /***************************************************************************/
 	public int getLastICMPRecv(String node) {
-		return (int) graph.getNode(node).getAttribute("ICMPRecv");
+		int val = 0;
+		try {
+			val = (int) graph.getNode(node).getAttribute("ICMPRecv");
+		}catch (NullPointerException e){
+			debug("getLastICMPRecv for node "+IPlastHex(node)+" "+e);
+		}
+		return val;
 	}
 /***************************************************************************/	
  	public void addRecvdPacket(String nodeId) {
@@ -527,6 +569,7 @@ public class ClientHelper {
 		try{
 			decValue = Integer.valueOf(lastPart,16);
 		}catch(NumberFormatException e) {
+			debug("ClientHelper: hex2dec problem, last part: "+lastPart);
 			debug(e.toString());
 		}
 		return decValue;

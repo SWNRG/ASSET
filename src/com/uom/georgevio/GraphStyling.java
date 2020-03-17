@@ -14,7 +14,7 @@ public class GraphStyling {
 	
 	private boolean viewerStarted = false;
 	
-	public GraphStyling() { /* empty constructor */
+	public GraphStyling() { /* constructor */
 		if(!viewerStarted) {
 			viewInit(); /* Singleton */
 			viewerStarted = true;
@@ -60,18 +60,18 @@ public class GraphStyling {
 	String motherNodeCSS =  "shape:cross;"
 						  + "fill-color: #ff4100, #ff4100; "
 						  + "fill-mode: gradient-diagonal1; "
-						  + "size:45px; "
+						  + "size:50px; "
 						  + "text-alignment: center; "
 						  + "text-color:white; "
 						  + "text-style:bold; "
 						  + "text-size:15px;"
 			       		  + "shadow-mode:plain;"
 						  + "shadow-offset: 4,4;"
-						  +"shadow-width:0;"
-						  +"shadow-color:#C9C9C9;";
+						  + "shadow-width:0;"
+						  + "shadow-color:#C9C9C9;";
 
 	String underAttackNodeCSS = "shape:diamond;"
-							  + "fill-color: #FF0000, #C9C9C9; "
+							  + "fill-color: #C9C9C9, #FF0000; "
 							  + "fill-mode: gradient-diagonal1; "
 							  + "size:45px; "
 							  + "text-alignment: center; "
@@ -80,8 +80,8 @@ public class GraphStyling {
 							  + "text-size:15px;"
 				     		  + "shadow-mode:plain;"
 							  + "shadow-offset: 4,4;"
-							  +"shadow-width:0;"
-							  +"shadow-color:#C9C9C9;";
+							  + "shadow-width:0;"
+							  + "shadow-color:#C9C9C9;";
 
 /***************************************************************************/	
 	public void viewInit() {

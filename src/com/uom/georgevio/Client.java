@@ -28,7 +28,7 @@ public class Client implements Runnable{
 	    	/* it will continue, ONLY when port is found */
 	    	while(motePort == null)
 	    		motePort = serialportprobe.getSerialPort();
-			debug("Client: Serial port found");
+			debug("Client: Serial port found. Ready to Start reading from Sink");
 			
 			clienthelper.setMotePort(motePort);
 
@@ -174,7 +174,10 @@ public class Client implements Runnable{
 /*************** PRINTOUTS **********************************/		
 	
 					clienthelper.probeForHiddenEdges(roundsCounter);
-					//clienthelper.printEdgesInfo(roundsCounter);
+					
+					/* Close this from GUI toggle button for less redundant info */
+					if(Main.printEdgesInfo)
+						clienthelper.printEdgesInfo(roundsCounter);
 
 /******** Checking for orphan nodes (InDegree = 0) occasionally****************/
 	        		if(roundsCounter%20==0) {/* Every fifty rounds */
@@ -191,21 +194,15 @@ public class Client implements Runnable{
 	        		}
 	        		*/
 /*********************kMeans on UDPRecv. Clustering =2 ********/        		
-	        		
-	        		
-	        		
-	        		
-	        		if(Main.appTimeStarted > 2*Main.keepAliveNodeBound)
-	        		//if(roundsCounter > 25)
+
+	        		/* Initial delay & GUI button pressed to start */
+	        		if(Main.appTimeStarted > 2*Main.keepAliveNodeBound 
+	        				&& roundsCounter > 100 
+	        				&& Main.kMeansStart /* GUI toggle button */
+	        			){
 	        			clienthelper.runKMeans(2); /* BE CAREFUL: Nothing else than two for now */
-	        		
-	        		
-	        		
-	        		
-	        		
-	        		
-	        		
-	        		
+	        		}
+
 /*********************End of reading the serial lines ********/
 				 }/* end if InPut!=null */
 				

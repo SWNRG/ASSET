@@ -6,11 +6,14 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.graphstream.graph.Edge;
+import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.SingleGraph;
 
@@ -25,6 +28,8 @@ import weka.experiment.AveragingResultProducer;
 public class ClusterMonitor{
 
 	private List<Node> clusterWithAttackedNodes = new ArrayList<>();
+	
+	FindConnectedComponents fCC = new FindConnectedComponents();
 	
 	public ClusterMonitor() {
 		//debug("ClusterMonitor Class Initialized...");
@@ -109,8 +114,7 @@ public class ClusterMonitor{
 		kmeans.setNumClusters(numCLusters);
 		
 		List<Node> cluster0 = new ArrayList<>();
-		List<Node> cluster1 = new ArrayList<>();
-		
+		List<Node> cluster1 = new ArrayList<>();		
 		List<Node> motherNodes2Return = new ArrayList<>();
 		
 		String pinakas = getClusters(nodes);
@@ -147,7 +151,7 @@ public class ClusterMonitor{
 			debug("--------End k-means. kmeans square error = "+shortKMeans+"-------");
 			
 			if (!cluster0.isEmpty() && !cluster1.isEmpty()) { /* if not all belong to one cluster only */
-				debug("both clusters are not empty...");
+				//debug("both clusters are not empty...");
 
 				if(cluster0.size() < cluster1.size()) { /* for now, the attacked cluster has less nodes */
 					motherNodes2Return = analyzeCluster(cluster0);
@@ -159,9 +163,10 @@ public class ClusterMonitor{
 				}
 			}
 		}
+		
 		return motherNodes2Return;
 	} // public void kMeans
-/*******************************************************************************/						
+/*******************************************************************************/
 	/* If kMeans identified two clusters with high confidence,then it should
 	 * call an algorithm like kosaraju to graph in strongly connected components
 	 * and then find the 'mother' of those different components by graph.
@@ -171,36 +176,49 @@ public class ClusterMonitor{
 	private List<Node> analyzeCluster(List<Node> cluster0) {
 		
 		List<Node> motherNodes = new ArrayList<>();
+
+		/* subgraph with all the nodes that are under attack */				
+		Graph graph2Check = new SingleGraph("graph2Check");
 		
 		if(cluster0.size()>2) { /* there must be at least three (3) nodes outliers for an attack */
-			
-			/* subgraph with all the nodes that are under attack */				
-			SingleGraph graph2Check = new SingleGraph("graph2Check");
-
-		for(Node node : cluster0) {
-			for(Edge edge: node) {
-				String edgeId = edge.getId();
-				String n0 = edge.getNode0().toString();
-				String n1 = edge.getNode1().toString();
-				if (graph2Check.getNode(n0) == null) 
-					graph2Check.addNode(n0);
-				if (graph2Check.getNode(n1) == null) 
-					graph2Check.addNode(n1);				
-				if (graph2Check.getEdge(edgeId) == null)
-					graph2Check.addEdge(edgeId, n0, n1);
+			/* Create a graph with all those nodes (under attack + attacker). 	
+			 * Be careful: We need to exclude the father of the attacker, 
+			 * hence, we add parent nodes only if they exist in the cluster.
+			 */
+			for(Node node : cluster0) {
+				for(Edge edge: node) {
+					if(graph2Check.getNode(edge.getNode1().toString()) == null) {
+						graph2Check.addNode(edge.getNode1().toString());
+					}
+				}
 			}
-		} // for(Node node : cluster0)
-			
+	
+			for(Node node : cluster0) {
+				for(Edge edge: node) {
+					String edgeId = edge.getId();
+					if(graph2Check.getEdge(edge.getId()) == null){
+					    if(cluster0.contains(edge.getNode0()) 
+						   && cluster0.contains(edge.getNode1())) {
+								graph2Check.addEdge(edgeId, edge.getNode0().getId(), edge.getNode1().getId(),true);
+						}				
+					}
+				}
+			}		
+	
+/* CHOOSE WHICH ATTACK YOU WANT: maybe the attacker is behaving and sends
+ * normally their own messages, while sinkhole attack their children. In this case,
+ * the attacker is not considered 'attacked' since it behaves normally. 
+ * You can only 'discover' it as a common parent of a family of attacked nodes
+ */
+		
+		
 /* we now have all the nodes under attack in a new graph
  * we can now find how many clusters there are, and find the
- * mother of each cluster. This mother is the attacker(s)
+ * mother of each cluster. This mother is the attacker(s).
+ * be careful, they are not the same nodes, just same name.
  */					
-			FindConnectedComponents fCC = new FindConnectedComponents(graph2Check);
-			motherNodes = fCC.findCC();
+			motherNodes = fCC.findCC(graph2Check);
 
-			for(Node node : motherNodes) { /* be careful, they are not the same nodes, just same name */
-				debug("Cluster Mon: node to be mother-colored:"+node);
-			}
 		}// if(cluster0.size()>2) 
 		return motherNodes;
 	} //private void analyzeClusters() t
@@ -235,7 +253,25 @@ public class ClusterMonitor{
 	public List<Node> getClusterWithAttackedNodes() {
 		return clusterWithAttackedNodes;
 	}
+/***************************************************************************/		
+	private boolean nodeExists(Node node, List<Node> cluster0) {
+		return (cluster0.contains(node)); 
+	}
 /***************************************************************************/	
+	private boolean edgeExists(Edge edge, Graph gr) {
+		
+		List<Edge> edges = (List<Edge>) gr.edges();
+			   // .filter(edge -> edge.getNode1() == gr.getNode(ip2))
+			    //.collect(Collectors.toList());
+		for (Node n : gr) {
+			for (Edge e : n){
+				if(e == edge)
+					return true;
+			}
+		}
+		return false;
+	}
+/***************************************************************************/
 	/* Convert the last part of IPv6 to DEC for short print */
 	private int IPlastHex(String IPv6) {
 		int decValue = 0;

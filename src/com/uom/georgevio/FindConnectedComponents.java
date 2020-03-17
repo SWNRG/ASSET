@@ -3,6 +3,7 @@ package com.uom.georgevio;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.graphstream.algorithm.ConnectedComponents;
 import org.graphstream.graph.Edge;
@@ -25,41 +26,49 @@ import org.graphstream.graph.Node;
 
 public class FindConnectedComponents { 
 	
-	private Graph graph;
-	
 	ConnectedComponents cc = new ConnectedComponents(); /* graphstream algo using Kosaraju style */
-
-	FindConnectedComponents(Graph graph){
-		this.graph = graph; 
+	
+	List<Node> motherNodes = new ArrayList<>();
+	
+	FindConnectedComponents(){ 
 	}
 	
-	public List<Node> findCC() {
-	
-		List<Node> motherNodes = new ArrayList<>();
+	public List<Node> findCC(Graph graph) {
+
+		//printInGraphEdges(graph); /* use for debugging */
 		
-		cc.init(graph);
+		cc.init(graph); /* subgraph of attacked / attacker only */
 		cc.compute(); 	
 		int ccGraphEnum = cc.getConnectedComponentsCount();
 		debug("There are "+ccGraphEnum+" connected (sub)graphs");
 
-		Iterator<? extends Node> nodess = graph.iterator();
-		while(nodess.hasNext()){
-			Node n = nodess.next();
-			String comp = cc.getConnectedComponentOf(n).toString();
+		Stream<Node> nodes =graph.nodes();
+		Iterator<Node> n = nodes.iterator();
+		while (n.hasNext()){
+			Node node = n.next();
+			String comp = cc.getConnectedComponentOf(node).toString();
 			comp = comp.substring(comp.lastIndexOf("#")+1); //components numbering from zero
-			debug("Node: "+IPlastHex(n.toString())+" belongs to component No "+comp);
-			try {
-				debug("FCC: Searching Node "+IPlastHex(n.toString())+" for incoming edges");
-				Edge e = n.getEnteringEdge(0);
-				
-				//TODO: Do we need the edges of the node under attack?
-				
-			}catch(IndexOutOfBoundsException NE) {
-				debug("FCC: Node "+n+" nominated as a 'mother node'.");
-				motherNodes.add(n);
+			debug("Node: "+IPlastHex(node.toString())+" belongs to component No "+comp);
+
+			if(node.enteringEdges().count() == 0) { /* orphan node, hence ATTACKER */
+				debug("Node "+IPlastHex(node.getId().toString())+" has no EdgeToward ==> IT IS AN ATTACKER");
+				motherNodes.add(node);				
 			}
 		}
+		//TODO: Do we need the edges of the node under attack?	
 		return motherNodes;
+	}
+/***************************************************************************/
+	/* Just for debugging purposes */	
+	private void printInGraphEdges(Graph graph) {		
+		debug("Printing graph Edges....");
+		Stream<Edge> e = graph.edges();
+		Iterator<Edge> iE = e.iterator();	
+		while (iE.hasNext()){
+			Edge ed =iE.next();
+			debug("Edge n0:"+IPlastHex(ed.getNode0().getId())+" n1:"+IPlastHex( ed.getNode1().getId()));
+		}
+		debug("End of graph Edges.....\n");
 	}
 /***************************************************************************/
 	/* Convert the last part of IPv6 to DEC for short print */
