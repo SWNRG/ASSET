@@ -57,23 +57,29 @@ public class Main extends Application {
     private static TextField edgesOutput;
     private TextField inDegreeOutput;
     private static TextField OutDegreesOutput; 
-
+    private static Button bttnStart;
+    
     @Override
     public void start(Stage primaryStage) throws Exception {
-
-        Parent root = FXMLLoader.load(getClass().getResource("simpleGUI.fxml"));
+    	Parent root;
+    	
+    	// in jar export needs the relevant path, in eclipse needs the module name
+    	try {
+    		root = FXMLLoader.load(getClass().getResource("/src/com/uom/georgevio/simpleGUI.fxml"));
+    	}catch(NullPointerException e){
+    		root = FXMLLoader.load(getClass().getResource("simpleGUI.fxml"));
+    	}
+        
         scene = new Scene(root, 700, 1000);
     	
         primaryStageLocal.setTitle("IoT SDN Centralized Console");
         primaryStageLocal.setScene(scene);
         primaryStageLocal.show(); /* without this, the JavaGUI does not show */
-
-        
+       
         //TODO: Suspect for crashes?
     	scene.getWindow().setX(0); /* left top of screen */
     	scene.getWindow().setY(0);
-        
-    	
+           	
         console = (TextArea) scene.lookup("#console");
         nodesOutput = (TextField) scene.lookup("#nodes");
     	edgesOutput = (TextField) scene.lookup("#edges");
@@ -87,9 +93,10 @@ public class Main extends Application {
         thread.start();
         
         /* Transfer the Client.start() to the GUI button */
-        Button bttnStart = (Button) scene.lookup("#bttnStart");
+        bttnStart = (Button) scene.lookup("#bttnStart");
         /* only if a thread has not started yet */
-    	bttnStart.setOnAction(e->{
+    	
+        bttnStart.setOnAction(e->{
         	if(!thread.isAlive()) {
         		thread.start();
         	}
@@ -107,8 +114,14 @@ public class Main extends Application {
             	thread1.start(); 
             }
     	});
-       
+        
         Button bttnStop = (Button) scene.lookup("#bttnStop");
+        bttnStop.setOnAction((event) -> {
+        	  System.out.println("Button clicked");
+        	});
+        
+
+        
         if(thread.isAlive()) /* only if thread has started already */
         	bttnStop.setOnAction(e->client.setExit(true));
        
