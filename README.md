@@ -2,7 +2,7 @@
 A centralized (SDN-paradigm) controller to monitor IoT networks. In this implementation, it cooperates with Cooja, the contiki emulator to monitor RPL networks.
 ![Controller in Action](/init_pic.png "Controller in Action")
 
-This is a controller for IoT Networks. It follows the SDN paradigm, hence it only communicates with the sink.
+This is a controller for IoT Networks running RPL protocol. It follows the SDN paradigm, hence it only communicates with the sink.
 The controller is able to identify an intruder, and the attacked nodes.
 [![Intro video](https://img.youtube.com/vi/VID/0.jpg)](https://www.youtube.com/watch?v=W8hz-U6VLXo&feature=youtu.be)
 THe controller will automaticailly discover the disovery of the underlying network, monitor in real time, an depict changes. An example [![here](https://img.youtube.com/vi/VID/0.jpg)](https://www.youtube.com/watch?v=ElScUBguE1o), where the network, starts and then node no 7 changes position. After a while (remember, RPL takes time to adjust), the node's new position and parent are automatically depicted in the GUI.
