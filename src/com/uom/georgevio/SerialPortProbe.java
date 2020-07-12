@@ -22,6 +22,10 @@ public class SerialPortProbe {
 			motePort=findPort("dev/pts/1");
 		if (motePort == null) 
 			motePort=findPort("dev/pts/2");
+		if (motePort == null)
+			motePort=findPort("dev/pts/3");
+		if (motePort == null)
+			motePort=findPort("dev/pts/6");
 		if (motePort == null)	
 			motePort=findPort("dev/pts/17");
 		if (motePort == null)
@@ -32,10 +36,6 @@ public class SerialPortProbe {
 			motePort=findPort("dev/pts/20");
 		if (motePort == null)
 			motePort=findPort("dev/pts/21");
-		if (motePort == null)
-			motePort=findPort("dev/pts/3");
-		if (motePort == null)
-			motePort=findPort("dev/pts/6");
 		return motePort;
 	}
 /***********METHODS*******************************************/	
