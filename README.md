@@ -10,6 +10,10 @@ An actual attack is identified [![here](https://img.youtube.com/vi/VID/0.jpg)](h
 After minute ~5, the attack is identified. the controller runs kMeans algoritm, finds all suspicious nodes, runs a Kosaraju algorithm to find how many stronlgy connected graphs there are, and at the end find the mother of each such sub-graph. The mothers identified are the attackers.
 As a meta-step, the network can exclude the attackers from being selected as parents by using "coloring" from a previous work, a video [![here](https://img.youtube.com/vi/VID/0.jpg)](https://www.youtube.com/watch?v=AeK3yW6pnWY&t=19s), papers [here](https://ieeexplore.ieee.org/abstract/document/8832178) & [here](https://ieeexplore.ieee.org/abstract/document/8647237).
 
+You can freely run it, but you need a contiki OS with specificly adapted nodes (sink-client-intruder) in order to run experiments.
+The "proffesional" way which gives you access to all, is to download contiki TWICE:
+1. the contiki (slightly altereed with a lot of custom messages, etc.) from here. Go to contiki/examples/ipv6/rpl-udp-fresh/ and run one of the many \*.csc files there. they all use the same two nodes: udp-server.c and udp-client.c. The \*dixon\*.csc emulations are using the respective \*dixon*.c sink/client code. 
+2. In order to include one or more intruder node(s), you have to download another contriki version (complemetely separated), from here. Again, the intruder code is in contiki/examples/ipv6/rpl-udp-fresh/\*.c.
 
 
 DONT FORGER TO CITE...
