@@ -42,12 +42,17 @@ public class ClientHelper {
 	Object2Double object2double = new Object2Double();
 	
 	//Scene mainScene = Main.getScene();
-
+	
+/***************************************************************************/
 	public ClientHelper() { /* constructor */
 		Main.debugEssentialTitle("Time\t\tNode\tInEdges\tLastSeen(sec)\tUDPRecv\tICMPin\tICMPout"); 
 	}
 /***************************************************************************/
 	public void removeGraph() {
+		graphstyling.removeView();
+	}
+/***************************************************************************/	
+	public void closeGraphViewer() { /* trying to stop the graph viewer in main */
 		graphstyling.removeView();
 	}
 /***************************************************************************/	
@@ -364,6 +369,9 @@ public class ClientHelper {
 	
 				graph.getNode(nodeId).setAttribute("parentOnly", false);
 				graphstyling.nodeStyle(nodeId);
+				
+				graph.getNode(nodeId).setAttribute("verNumAttacks",0);
+				graph.getNode(nodeId).setAttribute("verNumAttacksState","T0");
 	
 				graph.getNode(nodeId).setAttribute("UDPRecv",0);
 				graph.getNode(nodeId).setAttribute("ICMPSent",0);
@@ -448,7 +456,6 @@ public class ClientHelper {
 			debug("addICMPStats error for Node "+IPlastHex(nodeId)+": "+e.toString());
 		}
 	}
-
 /***************************************************************************/		
 	public void addICMPArrays(String nodeId, String inICMP, String outICMP) {
 		try{
@@ -458,8 +465,8 @@ public class ClientHelper {
 			int getLastSent = getLastICMPSent(nodeId);
 			int getLastRecv = getLastICMPRecv(nodeId);
 			
-			CircularQueue circularqueueSent = node.getAttribute("icmpArraySent", CircularQueue.class);
-			CircularQueue circularqueueRecv = node.getAttribute("icmpArrayRecv", CircularQueue.class);
+			CircularQueue<Integer> circularqueueSent = node.getAttribute("icmpArraySent", CircularQueue.class);
+			CircularQueue<Integer> circularqueueRecv = node.getAttribute("icmpArrayRecv", CircularQueue.class);
 
 			/* Those are the latest differences between the stored and the incoming values */
 			getLastSent = Integer.parseInt(outICMP) - getLastSent;
@@ -500,7 +507,6 @@ public class ClientHelper {
 			debug("ClientHelper: addICMPArrays for Node "+IPlastHex(nodeId)+": "+e.toString());
 		}
 	}
-
 /***************************************************************************/	
 	public void printNodeDetails(Node node) {
 		debug("Node "+IPlastHex(node.getId())+" Edges: ");
@@ -550,6 +556,60 @@ public class ClientHelper {
 		return val;
 	}
 /***************************************************************************/	
+	private boolean checkVersionTimeAttack(Node node) {
+		boolean answer = false;
+		long curTime = System.currentTimeMillis();
+		try {
+			if(node.getAttribute("verNumAttackTime") == null) { /* first time only */
+				node.setAttribute("verNumAttackTime",curTime);
+			}
+			
+			long nodeVerNumAttackT = (long)node.getAttribute("verNumAttackTime");
+			int attacksPerHour = (int) node.getAttribute("verNumAttacks");
+			long timeDif = curTime - nodeVerNumAttackT;
+		
+			if(timeDif < 3600000) { /* within one hour */
+				node.setAttribute("verNumAttacks", ++attacksPerHour);
+				
+				/* Papers suggest stop resetting trickle after VERSION_NUM_CHANGES attacks per hour */
+				if((int)node.getAttribute("verNumAttacks")> Main.VERSION_NUM_CHANGES){ 
+					answer = true;
+				}
+			}
+			else {
+				node.setAttribute("verNumAttacks", 1); /* resetting the time since it was more than one hour */
+			}
+			
+			debug("Node "+IPlastHex(node.getId())+" attacksPerHour: "+attacksPerHour);
+			
+		}catch (Exception e){
+			debug("Node "+node+" :"+e.toString());
+		}
+		return answer;
+	}
+/***************************************************************************/	
+	public void addVerNumAttacks(String nodeId, String verNumAttacks) {
+		try{
+			Node node = graph.getNode(nodeId);
+			if (checkVersionTimeAttack(node)) { /* The node is still in less than XX attacks per hour */
+				/* Just in case the node was ordered to stop resetting trickle timer long ago */
+				if ("T1".equals((String) node.getAttribute("verNumAttacksState"))) {
+					String message = "T0 "+node+"\n"; //T0 start resetting trickle timer  
+					sendMsg2Serial(message);					
+				}					
+			}
+			else { /* The node is in more than XX attacks per hour, hence it is under attack */
+				if (!"T1".equals((String) node.getAttribute("verNumAttacksState"))) { /* only once */
+					node.setAttribute("verNumAttacksState", "T1"); /* By default is T0 */
+					String message = "T1 "+node+"\n"; /* T1 = stop resetting trickle timer */  
+					sendMsg2Serial(message);
+				}				
+			}
+		}catch (Exception e) {
+			debug("Node "+IPlastHex(nodeId)+": "+e.toString());
+		}
+	}
+/***************************************************************************/	
  	public void addRecvdPacket(String nodeId) {
 		try{
 			Node node = graph.getNode(nodeId);
@@ -570,7 +630,8 @@ public class ClientHelper {
 			decValue = Integer.valueOf(lastPart,16);
 		}catch(NumberFormatException e) {
 			debug("ClientHelper: hex2dec problem, last part: "+lastPart);
-			debug(e.toString());
+			debug("Incoming IPv6: "+IPv6);
+			//debug(e.toString());
 		}
 		return decValue;
 	} 

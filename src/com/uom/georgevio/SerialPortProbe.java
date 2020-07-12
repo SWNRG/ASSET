@@ -14,9 +14,12 @@ public class SerialPortProbe {
 		return motePort;
 	}
 	
+	//TODO: Rewrite with a while loop
 	public SerialPort getSerialPort() {
 		
-	/********* Set & open the serial port ***************************/            
+	/********* Set & open the serial port ***************************/      
+		if (motePort == null) 
+			motePort=findPort("dev/pts/1");
 		if (motePort == null) 
 			motePort=findPort("dev/pts/2");
 		if (motePort == null)	
@@ -33,7 +36,6 @@ public class SerialPortProbe {
 			motePort=findPort("dev/pts/3");
 		if (motePort == null)
 			motePort=findPort("dev/pts/6");
-		
 		return motePort;
 	}
 /***********METHODS*******************************************/	

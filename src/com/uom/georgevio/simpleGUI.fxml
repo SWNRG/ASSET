@@ -59,7 +59,7 @@
     </MenuBar>
     <AnchorPane maxHeight="-1.0" maxWidth="-1.0" prefHeight="776.0" prefWidth="709.0" VBox.vgrow="ALWAYS">
       <children>
-            <TextArea fx:id="console" layoutX="11.0" layoutY="171.0" prefHeight="760.0" prefWidth="670.0" />
+            <TextArea fx:id="console" layoutX="11.0" layoutY="171.0" prefHeight="595.0" prefWidth="670.0" />
             <TextField fx:id="nodes" layoutX="91.0" layoutY="20.0" prefHeight="26.0" prefWidth="60.0" />
             <TextField fx:id="edges" layoutX="94.0" layoutY="70.0" prefHeight="26.0" prefWidth="60.0" />
             <Text layoutX="12.0" layoutY="37.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Nodes" />

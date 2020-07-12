@@ -26,9 +26,11 @@ public class Client implements Runnable{
 
 	    	debug("Client searching for Serial port...");	    	
 	    	/* it will continue, ONLY when port is found */
-	    	while(motePort == null)
+	    	while(motePort == null) {
 	    		motePort = serialportprobe.getSerialPort();
-			debug("Client: Serial port found. Ready to Start reading from Sink");
+	    		debug("Trying to find motePort...");
+	    	}
+			debug("CLIENT: Serial motePort found. Ready to Start reading from Sink");
 			
 			clienthelper.setMotePort(motePort);
 
@@ -38,7 +40,7 @@ public class Client implements Runnable{
 				
 				String inComingLine = lineReader.nextLine();
 				if(inComingLine!=null){
-	
+					//debug("DEBUGGING IN-LINE:"+inComingLine);
 	            	if(inComingLine.startsWith("Tentative")){ /* only the sink prints at the serial port */
 	        			String[] parts = inComingLine.split("Tentative link-local IPv6 address ",2);
 	        			ipServer = "["+parts[1]+"]";
@@ -140,6 +142,23 @@ public class Client implements Runnable{
 	        				debug("Custom line problem: "+e.toString());
 	        			}
 	        		}
+	            	else /* Version number attack */
+	        		if(inComingLine.startsWith("[VA")){ /* Version attack(s) number */
+	        			try{
+	        				String[] parts = inComingLine.split(" from ",2);
+	        				String nodeUnderVerAttack = parts[1];	        				
+	        				
+		        			if(clienthelper.legitIncomIP(nodeUnderVerAttack)) {
+		        				parts = parts[0].split(":",2);
+		        				String verNumAttacks =  parts[1].substring(0, parts[1].length() - 1); /* remove ']' */
+			        			clienthelper.checkNode(nodeUnderVerAttack); /* it will also reset the keepAliveTimer */			        				
+			        			clienthelper.addVerNumAttacks(nodeUnderVerAttack, verNumAttacks); /* keep the num of version number attacks suffered */
+		        			}			
+	        			}catch (ArrayIndexOutOfBoundsException e) {
+	        				//debug("could not break apart: "+inComingLine);
+	        				debug("Version Attack line problem: "+e.toString());
+	        			}
+	        		}	            	
 	        		else
 	        		/* Info from Attacker(s) when they Start/Stop. Only for logging */	
 	        		if(inComingLine.startsWith("DATA Intercept")){ 
@@ -165,7 +184,6 @@ public class Client implements Runnable{
 		        				// using an array now, not one old value above
 		        				clienthelper.addICMPArrays(nodeAlive, ICMPRecv, ICMPSent);
 		        			}
-	
 	        			}catch (ArrayIndexOutOfBoundsException e) {
 	        				debug("SI line problem: "+e.toString());
 	        			}
@@ -218,6 +236,10 @@ public class Client implements Runnable{
     	
     }/* end run() */
 /**************END OF run()***********************************/
+    public void closeGraphViewer() {
+    	/* calling the stopViewer in ClientHelper */
+    	clienthelper.closeGraphViewer();
+    }
 /************************************************************/   
     public void setExit(boolean exit) {
     	/* stopping the runnable Client */

@@ -49,6 +49,9 @@ public class Main extends Application {
 	/* How many previous ICMP mean values to keep in order to check Chebyshev outliers */
 	public static final int meanICMPHistoryKept = 7;
 
+	/* Papers suggest to stop resetting trickle timer after a certain number of version changes per hour */
+	public static final int VERSION_NUM_CHANGES = 20;
+	
 	Stage primaryStageLocal = new Stage();
 	
     private static Scene scene;
@@ -101,6 +104,10 @@ public class Main extends Application {
         		thread.start();
         	}
             else {
+                     	
+            	// TODO: Is this working ???
+            	client.closeGraphViewer();
+
             	debug("Stopping thread");	            	
             	//client.setExit(true);
             	thread.interrupt();
