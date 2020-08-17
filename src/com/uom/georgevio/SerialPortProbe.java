@@ -26,6 +26,8 @@ public class SerialPortProbe {
 			motePort=findPort("dev/pts/3");
 		if (motePort == null)
 			motePort=findPort("dev/pts/6");
+		if (motePort == null)
+			motePort=findPort("dev/pts/7");
 		if (motePort == null)	
 			motePort=findPort("dev/pts/17");
 		if (motePort == null)
@@ -42,18 +44,21 @@ public class SerialPortProbe {
 	protected SerialPort findPort(String portName ) {
 		try{
 			/********* Set & open the serial port ***************************/            
-			debug("Opening port:"+ portName);
+			//debug("Opening port:"+ portName);
 			motePort = SerialPort.getCommPort(portName);
 			motePort.closePort();
 			motePort.setBaudRate(115200);
 			//motePort.setParity(1);
 			motePort.setComPortTimeouts(SerialPort.TIMEOUT_SCANNER, 0, 0);
 			if(motePort.openPort()==true){
+				debug("Serial Port found: "+motePort.getDescriptivePortName());
 				debug("Baud Rate:"+ motePort.getBaudRate());
 				debug(" Parity:"+ motePort.getParity());
 				debug(" Write-Timeout:"+ motePort.getWriteTimeout());
 				return motePort;
 			} else {
+				debug("Serial Port not found. Check if port number exists in SerialPortProbe.java");
+				debug("Going to sleep for 300ms");
 				Thread.sleep(300);
 				return null;
 			}		
@@ -64,6 +69,6 @@ public class SerialPortProbe {
 	}
 	
     private static void debug(String message){
-    	//Main.debug((message));
+    	Main.debug((message));
 	}    				
 }

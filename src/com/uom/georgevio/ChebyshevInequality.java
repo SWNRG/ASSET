@@ -10,7 +10,7 @@ import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
  * Provides Chebyshev's Inequality method to find outliers for 
  * non-normally distributed data sets
  */
-public class ChebyshevInequality {// implements IOutlierDetector {
+public class ChebyshevInequality {/* implements IOutlierDetector */ 
 
 	DecimalFormat df = new DecimalFormat();
 	
@@ -75,6 +75,14 @@ public class ChebyshevInequality {// implements IOutlierDetector {
 	        debugBoth(valueToCheck + " valueToCheck");
 	        debugBoth(df.format(Math.floor(min)) + " min");
 	        debugBoth(df.format(Math.floor(max)) + " max");
+	        debugBoth(df.format(currentDeviation) + " currentDeviation");
+	        debugBoth(df.format(sampleStdDev) + " sampleStdDev");
+	        debugBoth(df.format(sampleMean) + " sampleMean");
+	        String valuesString = "values: ";       
+	        for (int i=0; i<timeSeriesData.length;i++){
+	        	valuesString+=timeSeriesData[i]+", ";
+	        }
+	        debugBoth(valuesString);
 	        debugBoth("--------------------------");
         }
         return outlierScore;

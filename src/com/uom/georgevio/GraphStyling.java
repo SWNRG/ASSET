@@ -11,6 +11,9 @@ import org.graphstream.ui.graphicGraph.stylesheet.Color;
 import org.graphstream.ui.view.LayerRenderer;
 import org.graphstream.ui.view.View;
 import org.graphstream.ui.view.Viewer;
+import org.graphstream.ui.view.camera.Camera;
+
+import javafx.scene.layout.BackgroundImage;
 
 public class GraphStyling {
 	
@@ -91,9 +94,33 @@ public class GraphStyling {
 
 /***************************************************************************/	
 	public void viewInit() {
+		
+		
+	    //graph.setAttribute("ui.stylesheet", "url(file://./init_pic.png')");
+	    
+	    
 		viewer = graph.display(true); /* show the graph in a standalone window */
 		viewer.enableAutoLayout();
+		
+		//graph.setAttribute();
+		//View view = viewer.getDefaultView();
+		//Camera cam = view.getCamera();
+
+		
 		//TODO: set a background image
+		
+		/*
+		Graph graph = new SingleGraph("graph");`
+		Viewer viewer = graph.display();
+		DefaultView view = (DefaultView) viewer.getDefaultView();
+		view.setBackLayerRenderer(new LayerRenderer() {
+		    @Override
+		    public void render(Graphics2D graphics2D, GraphicGraph  graphicGraph, double v, int i, int i1, double v1, double v2, double v3, double v4) {
+		        graphics2D.setColor(Color.green);
+		        graphics2D.drawString("hello", 10, 30);
+		    }
+		});
+		*/
 		
 	}
 /***************************************************************************/	

@@ -28,10 +28,9 @@ public class Client implements Runnable{
 	    	/* it will continue, ONLY when port is found */
 	    	while(motePort == null) {
 	    		motePort = serialportprobe.getSerialPort();
-	    		debug("Trying to find motePort...");
+	    		//debug("Trying to find motePort...");
 	    	}
-			debug("CLIENT: Serial motePort found. Ready to Start reading from Sink");
-			
+			debug("CLIENT: Ready to read RPL network");
 			clienthelper.setMotePort(motePort);
 
 	        /* read serial port output line by line */
@@ -69,7 +68,7 @@ public class Client implements Runnable{
 	        				}
 	        				clienthelper.checkEdge(ipServer,ip2);
 	        			}else { /* ip1 != ip2 */
-	            			clienthelper.onlyAddNodeifNotExist(ip1); 
+	        				clienthelper.onlyAddNodeifNotExist(ip1); 
 	            			clienthelper.checkNode(ip2);  
 	        			}        			
 	        		}/* end if InPut.startsWith("Route") */	        		 

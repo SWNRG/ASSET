@@ -41,6 +41,9 @@ public class ClientHelper {
 	
 	Object2Double object2double = new Object2Double();
 	
+	// Just testing RPL without ANY OVERHEAD. KEEP IT FALSE
+	boolean dontDoAnythingTest = false;
+	
 	//Scene mainScene = Main.getScene();
 	
 /***************************************************************************/
@@ -63,7 +66,8 @@ public class ClientHelper {
 	}
 /***************************************************************************/
 	public void sendMsg2Serial(String message) {
-		send2serial.sendSpecificMessage(message);
+		if (!dontDoAnythingTest)
+			send2serial.sendSpecificMessage(message);
 	}
 /***************************************************************************/	
 	public boolean getInDegrees(int roundsCounter) {
@@ -340,12 +344,15 @@ public class ClientHelper {
 			answer = true; 
 		} else if(!nodeId.equals(ipServer)) { /*  for all nodes EXCEPT the sink */
 			
-			/* node already exists, no need to be added, DONT reset its timer, 
+			/* node already exists, nd to be added, DONT reset its timer, 
 			 * it was just mentioned, there was not direct contact
 			 */
 			//debug("Node: "+IPlastHex(graph.getNode(nodeId).toString())+ "appears as neighbor");	
-		}		
-		return answer;
+		}
+		if(!dontDoAnythingTest)
+			return answer;
+		else
+			return false;
 	}
 /***************************************************************************/	
 	/* If a node does not exist, add it to the graph. If the node exists,
@@ -407,8 +414,12 @@ public class ClientHelper {
 				updatedAvgSeen = ( curAvgTimeSeen+currentTime ) /++timeSeenCounter;
 				graph.getNode(nodeId).setAttribute("timeSeenCounter",timeSeenCounter);
 				graph.getNode(nodeId).setAttribute("avgTimeSeen",updatedAvgSeen);
-			}		
-			return answer;
+			}	
+			if(!dontDoAnythingTest)
+				return answer;
+			else
+				return false;
+				//return answer;
 	}
 /***************************************************************************/	
 	/* if an edge does not exist, add it to the graph AND remove the old incoming one if any */
