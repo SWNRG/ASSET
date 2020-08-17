@@ -41,7 +41,7 @@ public class ClientHelper {
 	
 	Object2Double object2double = new Object2Double();
 	
-	// Just testing RPL without ANY OVERHEAD. KEEP IT FALSE
+	/* Just testing RPL without ANY OVERHEAD. KEEP IT FALSE */
 	boolean dontDoAnythingTest = false;
 	
 	//Scene mainScene = Main.getScene();
