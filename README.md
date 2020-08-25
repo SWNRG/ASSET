@@ -16,3 +16,9 @@ The "proffesional" way which gives you access to all, is to download contiki TWI
 
 
 DONT FORGER TO CITE...
+
+## SCREENSHOTS
+![Controller in Action2](/pics/20200317%mutli-attackes-id'd%correctly.png)
+![Controller in Action3](/pics/multi-small.png)
+![Controller in Action4](/pics/typical-net-slim-mode.png)
+![Controller in Action5](/pics/typical-small.png)
