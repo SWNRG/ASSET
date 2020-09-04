@@ -469,16 +469,36 @@ public class ClientHelper {
 	}
 /***************************************************************************/		
 	public void addICMPArrays(String nodeId, String inICMP, String outICMP) {
+		Node node = null;
+		/* Last accumulated values stored */
+		int getLastSent = 0;
+		int getLastRecv = 0;
+		
+		CircularQueue<Integer> circularqueueSent = null;
+		CircularQueue<Integer> circularqueueRecv = null;
+		
+		try {
+			node = graph.getNode(nodeId);
+		}catch (NullPointerException e){
+			debug("addICMPArrays node "+nodeId+" does not exist...");
+		}
+		
 		try{
-			Node node = graph.getNode(nodeId);
-			
 			/* Last accumulated values stored */
-			int getLastSent = getLastICMPSent(nodeId);
-			int getLastRecv = getLastICMPRecv(nodeId);
+			getLastSent = getLastICMPSent(nodeId);
+			getLastRecv = getLastICMPRecv(nodeId);
+		}catch(Exception e) {
+			debug("addICMPArrays getLastSent/getLastRecv error for node "+IPlastHex(nodeId));	
+		}
+		
+		try {
+			circularqueueSent = node.getAttribute("icmpArraySent", CircularQueue.class);
+			circularqueueRecv = node.getAttribute("icmpArrayRecv", CircularQueue.class);
+		}catch(Exception e) {
+			debug("addICMPArrays circularqueueSent/circularqueueRecv error for node "+IPlastHex(nodeId));	
+		}
 			
-			CircularQueue<Integer> circularqueueSent = node.getAttribute("icmpArraySent", CircularQueue.class);
-			CircularQueue<Integer> circularqueueRecv = node.getAttribute("icmpArrayRecv", CircularQueue.class);
-
+		try {
 			/* Those are the latest differences between the stored and the incoming values */
 			getLastSent = Integer.parseInt(outICMP) - getLastSent;
 			getLastRecv = Integer.parseInt(inICMP) - getLastRecv;
@@ -514,7 +534,7 @@ public class ClientHelper {
 			circularqueueRecv.add(getLastRecv);
 
 		}catch (Exception e) { 
-			e.printStackTrace();
+			//e.printStackTrace();
 			debug("ClientHelper: addICMPArrays for Node "+IPlastHex(nodeId)+": "+e.toString());
 		}
 	}
@@ -552,7 +572,7 @@ public class ClientHelper {
 		try {
 			val = (int) graph.getNode(node).getAttribute("ICMPSent");
 		}catch (NullPointerException e){
-			debug("getLastICMPSent for node "+IPlastHex(node)+" "+e);
+			debug("getLastICMPSent error for node "+IPlastHex(node)+" "+e);
 		}
 		return val;
 	}

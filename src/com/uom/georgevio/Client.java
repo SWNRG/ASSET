@@ -170,8 +170,11 @@ public class Client implements Runnable{
 	        				String nodeAlive = parts[1];	        				
 	        				
 		        			if(clienthelper.legitIncomIP(nodeAlive)) {
+
 		        				// this creates a DOUBLE NODE !!!!!
-		        				//clienthelper.checkNode(nodeAlive); /* it will also reset the keepAliveTimer */	
+		        				// The above statement SEEMS WRONG. CHECK AGAIN if in doubt
+		        				clienthelper.checkNode(nodeAlive); /* it will also reset the keepAliveTimer */	
+
 		        				parts = parts[0].split(":",2);
 		        				parts = parts[1].split(" ",2);
 		        				String ICMPRecv = parts[0];
