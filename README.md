@@ -21,6 +21,8 @@ Kyriakos Vougioukas (vougioukaskyriakos@live.com) created a superb testing frame
 
 ## SCREENSHOTS
 ![Controller in Action2](/pics/multi-attacks.png)
-![Controller in Action3](/pics/multi-small.png
-![Controller in Action4](/pics/typical-net-slim-mode.png)
+![Controller in Action3](/pics/multi-small.png)
+![Controller in Action4](/pics/attacker-loures-5-clients.png)
 ![Controller in Action5](/pics/typical-small.png)
+![Controller in Action6](/pics/random-screenshot.png)
+![Controller in Action7](/pics/mailicious_level_2.png)
