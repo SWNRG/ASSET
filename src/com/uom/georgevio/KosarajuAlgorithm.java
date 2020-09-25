@@ -2,7 +2,6 @@ package com.uom.georgevio;
 
 
 //Java implementation of Kosaraju's algorithm to print all SCCs 
-import java.io.*; 
 import java.util.*; 
 import java.util.LinkedList; 
 

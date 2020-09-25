@@ -1,7 +1,6 @@
 package com.uom.georgevio;
 
 import java.net.InetAddress;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.stream.Stream;
 
@@ -10,7 +9,6 @@ import org.graphstream.graph.ElementNotFoundException;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.SingleGraph;
-import org.graphstream.ui.view.Viewer;
 
 public class ReadInput {
 	

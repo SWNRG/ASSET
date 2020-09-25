@@ -75,7 +75,7 @@ public class Main extends Application {
         
         scene = new Scene(root, 700, 1000);
     	
-        primaryStageLocal.setTitle("IoT SDN Centralized Console");
+        primaryStageLocal.setTitle("ARRESTOR IDS");
         primaryStageLocal.setScene(scene);
         primaryStageLocal.show(); /* without this, the JavaGUI does not show */
        

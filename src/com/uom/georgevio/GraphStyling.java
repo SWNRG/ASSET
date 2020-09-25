@@ -1,19 +1,10 @@
 package com.uom.georgevio;
 
-import java.awt.Graphics2D;
-
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.SingleGraph;
-import org.graphstream.ui.graphicGraph.GraphicGraph;
-import org.graphstream.ui.graphicGraph.stylesheet.Color;
-import org.graphstream.ui.view.LayerRenderer;
-import org.graphstream.ui.view.View;
 import org.graphstream.ui.view.Viewer;
-import org.graphstream.ui.view.camera.Camera;
-
-import javafx.scene.layout.BackgroundImage;
 
 public class GraphStyling {
 	

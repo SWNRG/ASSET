@@ -35,8 +35,8 @@ public class Client implements Runnable{
 
 	        /* read serial port output line by line */
 	        Scanner lineReader = new Scanner(motePort.getInputStream());
-			while(lineReader.hasNextLine() ){
-				
+	      
+			while(lineReader.hasNextLine() ){	
 				String inComingLine = lineReader.nextLine();
 				if(inComingLine!=null){
 					//debug("DEBUGGING IN-LINE:"+inComingLine);
