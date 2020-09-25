@@ -19,23 +19,23 @@ DONT FORGER TO CITE...
 ## SPECIAL THANKS
 Kyriakos Vougioukas (vougioukaskyriakos@live.com) created a superb testing framework in Python, fully parameterizable, which was used for extensive tests of Dixon-Q test, and Chebyshev's Inequality. He also made it freely avaliable, [!here](https://github.com/boygioykaskyriakos/outliers_platform). You can obviously use it for other purposes. I sincerely thank him...
 
-<img src='/pics/multi-attacks.png' width=300/>
-
 ## SCREENSHOTS
 Controller in Action 1
-<img src='/pics/multi-attacks.png' width=500/>
-Controller in Action 2
-<img src='/pics/multi-small.png' width=500/>
-Controller in Action 3
-<img src='/pics/attacker-loures-5-clients.png' width=500/>
-Controller in Action 4
-<img src='/pics/random-screenshot.png' width=500/>
-Controller in Action 5
-<img src='/pics/mailicious_level_2.png' width=500/>
 
-![Controller in Action2](/pics/multi-attacks.png)
-![Controller in Action3](/pics/multi-small.png)
-![Controller in Action4](/pics/attacker-loures-5-clients.png)
-![Controller in Action5](/pics/typical-small.png)
-![Controller in Action6](/pics/random-screenshot.png)
-![Controller in Action7](/pics/mailicious_level_2.png)
+<img src='/pics/multi-attacks.png' width=700/>
+
+Controller in Action 2
+
+<img src='/pics/multi-small.png' width=700/>
+
+Controller in Action 3
+
+<img src='/pics/attacker-loures-5-clients.png' width=700/>
+
+Controller in Action 4
+
+<img src='/pics/random-screenshot.png' width=700/>
+
+Controller in Action 5
+
+<img src='/pics/mailicious_level_2.png' width=700/>
