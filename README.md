@@ -1,4 +1,4 @@
-# ARRESTOR: An sdn-inspiRed intRusion dEtection SysTem fOr Rpl
+# ASSET: An Sdn-inspired intruSion dEtection sysTem for Rpl
 A centralized (SDN-paradigm) controller to monitor IoT networks. In this implementation, it cooperates with Cooja, the contiki emulator to monitor RPL networks.
 ![Controller in Action](/pics/2-attacks.png)
 This is a controller for IoT Networks running RPL protocol. It follows the SDN paradigm, hence it only communicates with the sink.
