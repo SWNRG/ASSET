@@ -19,6 +19,8 @@ DONT FORGER TO CITE...
 ## SPECIAL THANKS
 Kyriakos Vougioukas (vougioukaskyriakos@live.com) created a superb testing framework in Python, fully parameterizable, which was used for extensive tests of Dixon-Q test, and Chebyshev's Inequality. He also made it freely avaliable, [!here](https://github.com/boygioykaskyriakos/outliers_platform). You can obviously use it for other purposes. I sincerely thank him...
 
+<img src='/pics/multi-attacks.png' width=300/>
+
 ## SCREENSHOTS
 ![Controller in Action2](/pics/multi-attacks.png)
 ![Controller in Action3](/pics/multi-small.png)
