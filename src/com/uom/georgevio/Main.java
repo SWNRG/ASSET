@@ -34,7 +34,7 @@ public class Main extends Application {
 	public static boolean kMeansStart = false;
 	
 	/* Start/Stop the printEdgesInfo from ClientHelper */
-	public static boolean printEdgesInfo = false;
+	public static boolean printEdgesInfo = true;
 	
 	/* Start/Stop the cebysev inequality check for outliers in addICMPArrays in ClientHelper */
 	public static boolean chebysevIneq = false;
@@ -43,8 +43,11 @@ public class Main extends Application {
 	
 	public static final long appTimeStarted = System.currentTimeMillis(); /* Time this Application first started */
 	
-	public static final long keepAliveNodeBound = 80000;
-	public static final long grayZoneNodeBound = 150000;
+	
+	// TODO: those times have a GREAT problem with the speed of the emulated network
+	
+	public static final long keepAliveNodeBound = 200000; //it was 80,000 looked small
+	public static final long grayZoneNodeBound = 350000;  //it was 150,000 looked small
 	
 	/* How many previous ICMP mean values to keep in order to check Chebyshev outliers */
 	public static final int meanICMPHistoryKept = 7;
@@ -73,9 +76,9 @@ public class Main extends Application {
     		root = FXMLLoader.load(getClass().getResource("simpleGUI.fxml"));
     	}
         
-        scene = new Scene(root, 700, 1000);
+        scene = new Scene(root, 700, 800);
     	
-        primaryStageLocal.setTitle("ARRESTOR IDS");
+        primaryStageLocal.setTitle("ASSET IDS");
         primaryStageLocal.setScene(scene);
         primaryStageLocal.show(); /* without this, the JavaGUI does not show */
        

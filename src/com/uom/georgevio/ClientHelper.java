@@ -71,21 +71,26 @@ public class ClientHelper {
 	}
 /***************************************************************************/	
 	public boolean getInDegrees(int roundsCounter) {
-
+		boolean answer = false;
 		Stream<Node> nodesStr = graph.nodes();
 		Iterable<Node> nodes = nodesStr::iterator; 
 		
 		for (Node node : nodes) {
-			/* Orphan node, probe it again. This will happen rarely */
+			/* Orphan node(s), probe it again. This will happen rarely */
 			if(node.getInDegree()== 0 && !(node.toString()).equals(ipServer)){
-				debug("R:"+roundsCounter+" Sneacky node with no incoming edge is "+IPlastHex(node.toString()));
-				
+				debug("R:"+roundsCounter+" Sneacky node "+IPlastHex(node.toString())
+						+ "with no incoming edge, was msg'd ");		
 				String message = "SP:"+node.toString()+"\n";
 				send2serial.sendSpecificMessage(message);
-				return true; /* found a sneaky hiding node and probed it */
+				answer = true; /* found a sneaky hiding node and probed it */				
 			}//if
+			try {
+				Thread.sleep(1000); // trying to slow down the message sending
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		}//while
-		return false; /* no one has zero incoming degree, If you are missing nodes, try next to probe for neighbors */
+		return answer; /* no one has zero incoming degree, If you are missing nodes, try next to probe for neighbors */
 	}
 /***************************************************************************/		
 	public void probeForHiddenEdges(int roundsCounter){
@@ -93,9 +98,14 @@ public class ClientHelper {
 		int edgesNum = graph.getEdgeCount();
 		
 		/* Initial delay ??? mins, every ??? mins, hence, after the network has "settled" down */
-		if (System.currentTimeMillis()  > Main.appTimeStarted + Main.keepAliveNodeBound && 
-				System.currentTimeMillis() > timeReprobeEdgesCounter+ Main.keepAliveNodeBound / 2 ) {
-
+		//if (System.currentTimeMillis()  > Main.appTimeStarted && //+ Main.keepAliveNodeBound && 
+		//		System.currentTimeMillis() > timeReprobeEdgesCounter+ Main.keepAliveNodeBound &&
+		if(	roundsCounter>50 &&	roundsCounter%100 == 0 &&
+				System.currentTimeMillis() > 
+						timeReprobeEdgesCounter + Main.keepAliveNodeBound ) {
+			
+			debug("R:"+roundsCounter+" probing for Hidden Edges in clientHelper");
+			
 			timeReprobeEdgesCounter = System.currentTimeMillis();
 			
 			if(nodesNum != edgesNum+1) { /* If nodes<>edges+1, there is missing information */
@@ -104,10 +114,12 @@ public class ClientHelper {
 				/* if there is no node with zero inDegree, last resort, probe for neighbors */
 				if(!getInDegrees(roundsCounter)) { 
 					
-					debug("tried getInDegrees, now probeNeighbors...");
+					debug("Tried getInDegrees, now probeNeighbors...");
 
 					Stream<Node> nodesStr = graph.nodes();
 					Iterable<Node> nodes = nodesStr::iterator; 
+					
+					/* The sink seems to receive those, but it does not forward? */
 					send2serial.probeNeighbors(nodes);					
 				}
 
@@ -122,6 +134,8 @@ public class ClientHelper {
 					}
 				}
 			}
+		} else {
+			//debug("R:"+roundsCounter+" probeForHiddenEdges did not start yet");
 		}
 	}
 /***************************************************************************/	
@@ -141,10 +155,10 @@ public class ClientHelper {
 		 */
 		long keepAliveTimer;
 		
-		/* Print every six rounds, AFTER a "grace" period. At the beginning
+		/* Print every nine rounds, AFTER a "grace" period. At the beginning
 		 * the network is still converging.
 		 */	
-		if(roundsCounter%6 == 0 && Main.appTimeStarted > 2*Main.keepAliveNodeBound) { 			
+		if(roundsCounter%90 == 0 && Main.appTimeStarted > 4*Main.keepAliveNodeBound) { 			
 			debug("R:"+roundsCounter+" -------Nodes - I/O Edges---------------");
 
 			/* Also can get data from Stream<Nodes> */
@@ -207,6 +221,8 @@ public class ClientHelper {
 				else if (keepAliveTimer > Main.keepAliveNodeBound ) { 
 					if((boolean) node.getAttribute("parentOnly")) {							 
 						//TODO: Do something about nodes as parents only
+						debug("Node "+shortNodeName+" was parent, and gone... Removing it");
+						graph.removeNode(node);
 					} else {
 						debug("Node "+shortNodeName+" is long gone... Removing it");
 						graph.removeNode(node);
@@ -372,7 +388,7 @@ public class ClientHelper {
 		else /* for all nodes except the sink */
 			if (graph.getNode(nodeId) == null) {/* node does not exist, needs to be added */
 				graph.addNode(nodeId);
-				debug("New node added: "+graph.getNode(nodeId));
+				debug("New node added: "+IPlastHex(nodeId)+", "+graph.getNode(nodeId));
 	
 				graph.getNode(nodeId).setAttribute("parentOnly", false);
 				graphstyling.nodeStyle(nodeId);

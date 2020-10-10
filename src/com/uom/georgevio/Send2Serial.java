@@ -31,11 +31,11 @@ public class Send2Serial implements Runnable{
 /***************************************************************************/	
 	public void probeNeighbors(Iterable<Node> nodes) {
 		for (Node node : nodes) {
-			debug(" Probing for neighbors Node\t"+IPlastHex(node.toString()));
+			debug(" Probing for neighbors the Node\t"+IPlastHex(node.toString()));
 			String message = "N1 "+node.toString()+"\n";
 			try {
 				send2Serial(message);	
-				Thread.sleep(300);	/* trying to keep the serial port from hanging */
+				Thread.sleep(1000);	/* trying to keep the serial port from hanging */
 			} catch (InterruptedException e) {
 				  Thread.currentThread().interrupt();
 			}
@@ -44,8 +44,9 @@ public class Send2Serial implements Runnable{
 /***************************************************************************/		
 	public void sendSpecificMessage(String message) {		
 		try {
+			//debug("Sending: "+message);
 			send2Serial(message);
-			Thread.sleep(300); /* trying to keep the serial port from hanging */
+			Thread.sleep(1000); /* trying to keep the serial port from hanging */
 		} catch (InterruptedException e) {
 			  Thread.currentThread().interrupt();
 		}	

@@ -24,7 +24,7 @@ Kyriakos Vougioukas (vougioukaskyriakos@live.com) created a superb testing frame
 ## SCREENSHOTS
 Controller in Action 1
 
-<img src='/pics/multi-attacks.png' width=700/>
+<img src='/pics/controller-in-action.png' width=700/>
 
 Controller in Action 2
 
