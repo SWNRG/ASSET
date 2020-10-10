@@ -1,7 +1,11 @@
 package com.uom.georgevio;
 
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
+
 import org.graphstream.graph.Node;
 import com.fazecast.jSerialComm.SerialPort;
 
@@ -30,26 +34,49 @@ public class Send2Serial implements Runnable{
     
 /***************************************************************************/	
 	public void probeNeighbors(Iterable<Node> nodes) {
-		for (Node node : nodes) {
+		//List<Node> shuffled =  New ArrayList<>(nodes);
+		
+		/* Trying to iterate RANDOMLY */
+		Iterator<Node> randomNodes = nodes.iterator();
+		
+		List<Node> nodeArray = new ArrayList<Node>();
+		while (randomNodes.hasNext()) {
+			nodeArray.add(randomNodes.next());
+		}
+		
+		Collections.shuffle((List<?>) randomNodes);
+		
+		//while (randomNodes.hasNext()) {
+			//Node node = randomNodes.next();
+		for (Node node : nodeArray) {
 			debug(" Probing for neighbors the Node\t"+IPlastHex(node.toString()));
 			String message = "N1 "+node.toString()+"\n";
+			/*
 			try {
 				send2Serial(message);	
-				Thread.sleep(1000);	/* trying to keep the serial port from hanging */
+				Thread.sleep(500);	 //trying to keep the serial port from hanging 
 			} catch (InterruptedException e) {
 				  Thread.currentThread().interrupt();
-			}
+			}*/
+			
+			
+			/* trying to implement NON-blocking */	
+			  new Thread( new Runnable() {
+			        public void run()  {
+			            try  { Thread.sleep( 1000 ); }
+			            catch (InterruptedException ie)  {}
+			            send2Serial(message);
+			        }
+			    } ).start();
+			  
+			  
 		}//while
 	}
 /***************************************************************************/		
 	public void sendSpecificMessage(String message) {		
-		try {
-			//debug("Sending: "+message);
-			send2Serial(message);
-			Thread.sleep(1000); /* trying to keep the serial port from hanging */
-		} catch (InterruptedException e) {
-			  Thread.currentThread().interrupt();
-		}	
+		//debug("Sending: "+message);
+		send2Serial(message);
+		//Thread.sleep(1000); /* trying to keep the serial port from hanging */
 	}			
 /******************** SEND A MESSAGE TO UART PORT **************************/
 	private void send2Serial(String message){		

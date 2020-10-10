@@ -200,7 +200,7 @@ public class Client implements Runnable{
 						clienthelper.printEdgesInfo(roundsCounter);
 
 /******** Checking for orphan nodes (InDegree = 0) occasionally****************/
-	        		if(roundsCounter%100==0) {/* Every hundred rounds */
+	        		if(roundsCounter%100==0 && roundsCounter > 100) {/* Every hundred rounds */
 		        		clienthelper.getInDegrees(roundsCounter); /* Just in case there is someone hiding? */
 		        		
 		        		//TODO: This is not needed anymore since we have spanning tree?

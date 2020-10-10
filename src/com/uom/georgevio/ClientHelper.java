@@ -2,6 +2,9 @@ package com.uom.georgevio;
 
 import java.net.InetAddress;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -73,22 +76,45 @@ public class ClientHelper {
 	public boolean getInDegrees(int roundsCounter) {
 		boolean answer = false;
 		Stream<Node> nodesStr = graph.nodes();
-		Iterable<Node> nodes = nodesStr::iterator; 
+		//Iterable<Node> nodes = nodesStr::iterator; 
+				
+		/* Trying to iterate RANDOMLY */
+		Iterator<Node> randomNodes = nodesStr.iterator();
+		List<Node> nodeArray = new ArrayList<Node>();
+		while (randomNodes.hasNext()) {
+			nodeArray.add(randomNodes.next());
+		}
+		Collections.shuffle((List<?>) nodeArray);
 		
-		for (Node node : nodes) {
+		//while (randomNodes.hasNext()) {
+			//Node node = randomNodes.next();
+		
+		for (Node node : nodeArray) {
 			/* Orphan node(s), probe it again. This will happen rarely */
 			if(node.getInDegree()== 0 && !(node.toString()).equals(ipServer)){
 				debug("R:"+roundsCounter+" Sneacky node "+IPlastHex(node.toString())
-						+ "with no incoming edge, was msg'd ");		
+						+ " with no in->edge, was msg'd ");		
 				String message = "SP:"+node.toString()+"\n";
+				/*
 				send2serial.sendSpecificMessage(message);
+				try {
+					Thread.sleep(100);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} */
+				
+				/* trying to implement NON-blocking */	
+			  new Thread( new Runnable() {
+			        public void run()  {
+			            try  { Thread.sleep( 800 ); }
+			            catch (InterruptedException ie)  {}
+			            send2serial.sendSpecificMessage(message);
+			        }
+			    } ).start();
+
 				answer = true; /* found a sneaky hiding node and probed it */				
 			}//if
-			try {
-				Thread.sleep(1000); // trying to slow down the message sending
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
 		}//while
 		return answer; /* no one has zero incoming degree, If you are missing nodes, try next to probe for neighbors */
 	}
