@@ -41,3 +41,7 @@ Controller in Action 4
 Controller in Action 5
 
 <img src='/pics/mailicious_level_2.png' width=700/>
+
+Controller in Action 6
+
+<img src='/pics/blackhole.png' width=700/>
