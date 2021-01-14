@@ -221,6 +221,10 @@ public class Client implements Runnable{
 	        				&& Main.kMeansStart /* GUI toggle button */
 	        			){
 	        			clienthelper.runKMeans(2); /* BE CAREFUL: Nothing else than two for now */
+
+	        			
+/*-----------------------IMPLEMENTING BLACKLISTING AND MITIGATION MEASURES OMITTED */	        		
+	        		
 	        		}
 
 /*********************End of reading the serial lines ********/

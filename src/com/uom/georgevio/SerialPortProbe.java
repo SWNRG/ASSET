@@ -25,9 +25,15 @@ public class SerialPortProbe {
 		if (motePort == null)
 			motePort=findPort("dev/pts/3");
 		if (motePort == null)
+			motePort=findPort("dev/pts/4");
+		if (motePort == null)
 			motePort=findPort("dev/pts/6");
 		if (motePort == null)
 			motePort=findPort("dev/pts/7");
+		if (motePort == null)	
+			motePort=findPort("dev/pts/14");
+		if (motePort == null)	
+			motePort=findPort("dev/pts/15");
 		if (motePort == null)	
 			motePort=findPort("dev/pts/17");
 		if (motePort == null)

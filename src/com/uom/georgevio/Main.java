@@ -227,7 +227,11 @@ public class Main extends Application {
 	    	Platform.runLater(() -> console.appendText(finalMessage));	/* without it, console crashes */
 		}
 		else /* standard Java output */
-			System.out.println(formatTime(System.currentTimeMillis())+": "+ message+".");
+			//System.out.println(formatTime(System.currentTimeMillis())+": "+ message+".");
+			
+			System.out.println(message);
+		
+		
     }
     
     public static void debugEssential(String message) {

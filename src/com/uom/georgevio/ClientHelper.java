@@ -1,5 +1,9 @@
 package com.uom.georgevio;
 
+/* BLACKLISTING AND MITIGATION ACTIONS OMITTED */
+
+
+
 import java.net.InetAddress;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -296,7 +300,7 @@ public class ClientHelper {
 					if (!motherNodes.contains(node)) // it doesn't seem to work.. check again
 						graphstyling.nodeUnderAttack(node);
 					
-					//printNodeDetails(node);
+						//printNodeDetails(node);
 					
 				}
 			} catch (Exception e) {
