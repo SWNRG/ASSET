@@ -51,7 +51,7 @@ public class SerialPortProbe {
 		}while (motePort == null); 
 		//debug("OPEN PORT FOUND...");
 	/********* Set & open the serial port ***************************/      
-		//return motePort;
+		return motePort;
 	}
 	
 /***********METHODS*******************************************/	
