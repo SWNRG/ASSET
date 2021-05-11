@@ -26,10 +26,10 @@ public class Client implements Runnable{
 
 	    	debug("Client searching for Serial port...");	    	
 	    	/* it will continue, ONLY when port is found */
-	    	while(motePort == null) {
+	    	 do{
 	    		motePort = serialportprobe.getSerialPort();
 	    		//debug("Trying to find motePort...");
-	    	}
+	    	}while(motePort == null);
 			debug("CLIENT: Ready to read RPL network");
 			clienthelper.setMotePort(motePort);
 
