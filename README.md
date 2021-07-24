@@ -17,6 +17,7 @@ The "proffesional" way which gives you access to all, is to download contiki TWI
 2. In order to include one or more intruder node(s), you have to download another contriki version (completely separated), from ![contiki-malicious](https://github.com/SWNRG/contiki-malicious), or ![contiki-malicious-controller-aware](https://github.com/SWNRG/contiki-malicious-controller-aware), or ![contiki-malicious-controller-aware-version-attack](https://github.com/SWNRG/contiki-malicious-controller-aware-version-attack). Again, in all cases, the intruder code is in contiki/examples/ipv6/rpl-udp-fresh/\*.c.
 
 DONT FORGER TO CITE...
+
 George Violettas, George Simoglou, Sophia Petridou, Lefteris Mamatas,
 A Softwarized Intrusion Detection System for the RPL-based Internet of Things networks,
 Future Generation Computer Systems,
