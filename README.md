@@ -1,5 +1,6 @@
 # ASSET: An Sdn-inspired intruSion dEtection sysTem for Rpl
 A centralized (SDN-paradigm) controller to monitor IoT networks. In this implementation, it cooperates with Cooja, the contiki emulator to monitor RPL networks.
+**The project was the basis for a publication in Elsevier Future Generation Computer Systems**, https://doi.org/10.1016/j.future.2021.07.013
 
 <img src='/pics/2-attacks.png' width=800/>
 
