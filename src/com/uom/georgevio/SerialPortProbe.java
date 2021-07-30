@@ -4,86 +4,51 @@ import com.fazecast.jSerialComm.SerialPort;
 
 public class SerialPortProbe {
 	
-	SerialPort motePort = null; 
+	private SerialPort motePort = null;
 	
-	public SerialPortProbe() {
-		//motePort = getSerialPort();
-	}
-
-	public SerialPort returnSerialPort() {
+	public SerialPort getMotePort() {
 		return motePort;
 	}
 
-	public SerialPort getSerialPort() {		
-		StringBuilder portString = new StringBuilder();
-		do {
-			for (int i=1; i<20; i++) {
-				portString.append("dev/pts/");
-				portString.append(String.valueOf(i));
-				debug("Trying port: "+portString);				
-				try{
-					/********* Set & open the serial port ***************************/            
-					//debug("Opening port:"+ portName);
-					motePort = SerialPort.getCommPort(portString.toString());
+	private void setMotePort(SerialPort motePort) {
+		this.motePort = motePort;
+	}    	
+	
+	protected volatile static boolean portFound = false;
+	
+	/***** Return the pts port used by Cooja ***********/	
+	public void searchPort() {	
+	
+		String portName = null;
+		
+		while(!portFound) {
+			try{
+				for(int p = 1; p < 4; p++) {
+					 portName = "/dev/pts/"+String.valueOf(p);
+					/********* Set & open the serial port **************/            
+					debug("Opening port: "+ portName);
+					motePort = SerialPort.getCommPort(portName);
 					motePort.closePort();
 					motePort.setBaudRate(115200);
 					//motePort.setParity(1);
 					motePort.setComPortTimeouts(SerialPort.TIMEOUT_SCANNER, 0, 0);
 					if(motePort.openPort()){
-						debug("Serial Port found: "+motePort.getDescriptivePortName());
-						//debug("Baud Rate:"+ motePort.getBaudRate());
-						//debug(" Parity:"+ motePort.getParity());
-						//debug(" Write-Timeout:"+ motePort.getWriteTimeout());
-						return motePort;
-					} else {
-						//debug("Serial Port not found. Check if port number exists in SerialPortProbe.java");
-						//debug("Going to sleep for 300ms");
-						Thread.sleep(300);
-						//return null;
-					}		
-				} catch (Exception e) {
-					debug(e.toString());
-				} 
-				//motePort=findPort(portString.toString());
-				portString.setLength(0);
-				portString.append("dev/pts/");
-			}
-		}while (motePort == null); 
-		//debug("OPEN PORT FOUND...");
-	/********* Set & open the serial port ***************************/      
-		return motePort;
+						debug("Serial Port found: "+portName);
+						setMotePort(motePort);
+						portFound = true;
+						break;
+					} 
+				}
+				debug("Serial Port not found... Sleeping for 3 sec");
+				Thread.sleep(3000);	
+			} catch (Exception e) {
+				debug(e.toString());
+			} 
+		}
 	}
 	
-/***********METHODS*******************************************/	
-	protected SerialPort findPort(String portName ) {
-		try{
-			/********* Set & open the serial port ***************************/            
-			//debug("Opening port:"+ portName);
-			motePort = SerialPort.getCommPort(portName);
-			motePort.closePort();
-			motePort.setBaudRate(115200);
-			//motePort.setParity(1);
-			motePort.setComPortTimeouts(SerialPort.TIMEOUT_SCANNER, 0, 0);
-			if(motePort.openPort()){
-				debug("Serial Port found: "+motePort.getDescriptivePortName());
-				//debug("Baud Rate:"+ motePort.getBaudRate());
-				//debug(" Parity:"+ motePort.getParity());
-				//debug(" Write-Timeout:"+ motePort.getWriteTimeout());
-				return motePort;
-			} else {
-				//debug("Serial Port not found. Check if port number exists in SerialPortProbe.java");
-				//debug("Going to sleep for 300ms");
-				Thread.sleep(300);
-				return null;
-			}		
-		} catch (Exception e) {
-			debug(e.toString());
-		} 
-		return null;
-	}
-	
-/***********UNIVRSAL PRINT IN GUI OUTPUT ***********************************/		
+/***********UNIVERSAL PRINT IN GUI OUTPUT ***********************************/		
     private static void debug(String message){
     	Main.debug((message));
-	}    				
+	}				
 }

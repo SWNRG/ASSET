@@ -2,8 +2,6 @@ package com.uom.georgevio;
 
 /* BLACKLISTING AND MITIGATION ACTIONS OMITTED */
 
-
-
 import java.net.InetAddress;
 import java.text.DecimalFormat;
 import java.util.ArrayList;

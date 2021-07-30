@@ -1,7 +1,8 @@
 package com.uom.georgevio;
 
-import com.fazecast.jSerialComm.SerialPort;
 import java.util.Scanner;
+
+import com.fazecast.jSerialComm.SerialPort;
 
 public class Client implements Runnable{
 
@@ -21,16 +22,27 @@ public class Client implements Runnable{
 		
     @Override
     public void run(){
+   	 serialportprobe.searchPort();
+   	 while (!SerialPortProbe.portFound) {
+   		 //stay here while searching for motePort
+   	 }
+   	 motePort=serialportprobe.getMotePort();
     	
+    	debug("motePort found somehow:"+motePort.toString());
     	while(!Thread.interrupted()) {
 
-	    	debug("Client searching for Serial port...");	    	
+	    	//debug("CLIENT searching for Serial port...");	    	
+	    	  	
+	    	
 	    	/* it will continue, ONLY when port is found */
-	    	 do{
-	    		motePort = serialportprobe.getSerialPort();
+	    	// do{
+	    		//motePort = serialportprobe.getSerialPort();
 	    		//debug("Trying to find motePort...");
-	    	}while(motePort == null);
-			debug("CLIENT: Ready to read RPL network");
+	    	//}while(motePort == null);
+			
+	    	 
+	    	 
+	    	 debug("CLIENT: Ready to read RPL network");
 			clienthelper.setMotePort(motePort);
 
 	        /* read serial port output line by line */
