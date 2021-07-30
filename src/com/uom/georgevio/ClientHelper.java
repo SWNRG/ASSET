@@ -66,7 +66,7 @@ public class ClientHelper {
 /***************************************************************************/	
 	public void setMotePort(SerialPort motePort) { /* port will be set by the Client class */
 		this.motePort = motePort;
-		debug("ClientHelper class: Serial port set from Client class...");
+		//debug("ClientHelper class: Serial port set from Client class...");
 		send2serial = new Send2Serial(motePort); /* serial port is set now */
 	}
 /***************************************************************************/
