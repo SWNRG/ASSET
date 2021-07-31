@@ -1,7 +1,8 @@
 package com.uom.georgevio;
 
-/* The JavaFX GUI is ready, it receives some parameters (e.g., nodes and edges numbers)
- * but it is not activated. Uncomment below the line primaryStage.show();
+/* The JavaFX GUI is ready, it receives some parameters 
+ * (e.g., nodes and edges numbers) but it is not
+ * activated. Uncomment below the line primaryStage.show();
  */
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -15,6 +16,8 @@ import javafx.scene.control.ToggleButton;
 import javafx.stage.Stage;
 
 import java.text.SimpleDateFormat;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
@@ -22,7 +25,7 @@ import java.util.logging.Logger;
 import com.fazecast.jSerialComm.SerialPort;
 
 public class Main extends Application {
-	//TODO: Find an algorithm to detect no connection to sink
+	//TODO: Implement an algorithm to detect no connection to sink
 
 	static LogService logservice = new LogService();
 	private static final boolean logging2File = true;
@@ -43,9 +46,7 @@ public class Main extends Application {
 	
 	public static final long appTimeStarted = System.currentTimeMillis(); /* Time this Application first started */
 	
-	
-	// TODO: those times have a GREAT problem with the speed of the emulated network
-	
+	// TODO: those times have a GREAT problem with the speed of the emulated network	
 	public static final long keepAliveNodeBound = 200000; //it was 80,000 looked small
 	public static final long grayZoneNodeBound = 350000;  //it was 150,000 looked small
 	
@@ -57,18 +58,22 @@ public class Main extends Application {
 	
 	Stage primaryStageLocal = new Stage();
 	
-    private static Scene scene;
-    private static TextArea console;
-    private static TextField nodesOutput;
-    private static TextField edgesOutput;
-    private TextField inDegreeOutput;
-    private static TextField OutDegreesOutput; 
-    private static Button bttnStart;
-    
-    @Override
-    public void start(Stage primaryStage) throws Exception {
-    	Parent root;
-    	
+	private static Scene scene;
+	private static TextArea console;
+	private static TextField nodesOutput;
+	private static TextField edgesOutput;
+	private TextField inDegreeOutput;
+	private static TextField OutDegreesOutput; 
+	private static Button bttnStart;
+	
+	private static boolean appRunning = false;
+	
+	Client client;
+	
+	@Override
+	public void start(Stage primaryStage) throws Exception {
+
+		Parent root;
     	// in jar export needs the relevant path, in eclipse needs the module name
     	try {
     		root = FXMLLoader.load(getClass().getResource("/src/com/uom/georgevio/simpleGUI.fxml"));
@@ -76,96 +81,98 @@ public class Main extends Application {
     		root = FXMLLoader.load(getClass().getResource("simpleGUI.fxml"));
     	}
         
-        scene = new Scene(root, 700, 800);
-    	
-        primaryStageLocal.setTitle("ASSET IDS");
-        primaryStageLocal.setScene(scene);
-        primaryStageLocal.show(); /* without this, the JavaGUI does not show */
+		scene = new Scene(root, 700, 800);
+			
+		primaryStageLocal.setTitle("ASSET IDS");
+		primaryStageLocal.setScene(scene);
+		primaryStageLocal.show(); /* without this, the JavaGUI does not show */
        
-        //TODO: Suspect for crashes?
+      //TODO: Suspect for crashes?
     	scene.getWindow().setX(0); /* left top of screen */
     	scene.getWindow().setY(0);
            	
-        console = (TextArea) scene.lookup("#console");
-        nodesOutput = (TextField) scene.lookup("#nodes");
+    	console = (TextArea) scene.lookup("#console");
+    	nodesOutput = (TextField) scene.lookup("#nodes");
     	edgesOutput = (TextField) scene.lookup("#edges");
     	inDegreeOutput = (TextField) scene.lookup("#inDegree");
     	OutDegreesOutput = (TextField) scene.lookup("#outDegree"); 		
 
-        debug("Waiting for \"Start\" button ");
+    	client = new Client();
+		Thread thread =  new Thread(client); /* Thread will be started below with a button */		
 
-        Client client = new Client();
-        Thread thread = new Thread(client);
-        thread.start();
-        
-        /* Transfer the Client.start() to the GUI button */
-        bttnStart = (Button) scene.lookup("#bttnStart");
-        /* only if a thread has not started yet */
-    	
-        bttnStart.setOnAction(e->{
-        	if(!thread.isAlive()) {
-        		thread.start();
-        	}
-            else {
-                     	
-            	// TODO: Is this working ???
-            	client.closeGraphViewer();
+		debug("Waiting for \"Start\" button ");
 
-            	debug("Stopping thread");	            	
-            	//client.setExit(true);
-            	thread.interrupt();
-            	try {
-					Thread.sleep(1000);
-				} catch (InterruptedException e1) {
-					e1.printStackTrace();
-				}
-            	debug("Starting thread again");	 
-            	Thread thread1 = new Thread(client);
-            	thread1.start(); 
-            }
-    	});
-        
-        Button bttnStop = (Button) scene.lookup("#bttnStop");
-        bttnStop.setOnAction((event) -> {
-        	  System.out.println("Button clicked");
-        	});
-        
+		/* Transfer the Client.start() to the GUI button */
+		bttnStart = (Button) scene.lookup("#bttnStart");		
+		bttnStart.setOnAction(e->{ 
+			if(!appRunning) {
+				debug("Starting the Application");
+				thread.start();
+				//client.run();
+				//executor = Executors.newSingleThreadExecutor();
+				//executor.submit(client);
+				//runclient.run();
+				appRunning = true;
+			}
+			else {
+				debug("App was running, trying to stop");
+				//client.closeGraphViewer();
+				//client.kill();
+				
+				//executor.shutdownNow();
+				
+				//runclient.kill();
+				appRunning = false;
+			}
+		});
+     
+		/* Start/Stop the application button in GUI */
+	  Button bttnStop = (Button) scene.lookup("#bttnStop");
+	  bttnStop.setOnAction((event) -> {
+		  debug("STOP Button pressed");
 
+		  // TODO: Is this working ???
+		// client.closeGraphViewer();
+		//  client.kill();
+	  });
         
-        if(thread.isAlive()) /* only if thread has started already */
-        	bttnStop.setOnAction(e->client.setExit(true));
-       
-        ToggleButton toggleBttnkMeans = (ToggleButton) scene.lookup("#toggleBttnkMeans");
-		toggleBttnkMeans.setOnAction(e -> {
+     //if(thread.isAlive()) /* only if thread has started already */
+   	  //bttnStop.setOnAction(e->client.setExit(true));
+     
+     /* Start/Stop kMeans button in GUI */
+     ToggleButton toggleBttnkMeans = (ToggleButton) scene.lookup("#toggleBttnkMeans");
+     toggleBttnkMeans.setOnAction(e -> {
 			if (toggleBttnkMeans.isSelected()) {
 				kMeansStart = true;
 			    debug("kMeans turned ON..................");
 			} else {
 				kMeansStart = false;
 				debug("kMeans turned off..................");
-		    }
+		   }
 		});
 		
-        ToggleButton toggleBttnPrintEdgesInfo = (ToggleButton) scene.lookup("#toggleBttnPrintEdgesInfo");
-        toggleBttnPrintEdgesInfo.setOnAction(e -> {
-			if (toggleBttnPrintEdgesInfo.isSelected()) {
-				printEdgesInfo = true;
-			    debug("printEdgesInfo turned ON..................");
-			} else {
-				printEdgesInfo = false;
-				debug("printEdgesInfo turned off..................");
-		    }
+     /* Start/Stop Print Edges button in GUI */
+      ToggleButton toggleBttnPrintEdgesInfo = (ToggleButton) scene.lookup("#toggleBttnPrintEdgesInfo");
+      toggleBttnPrintEdgesInfo.setOnAction(e -> {
+      	if (toggleBttnPrintEdgesInfo.isSelected()) {
+      		printEdgesInfo = true;
+      		debug("printEdgesInfo turned ON..................");
+      	} else {
+      		printEdgesInfo = false;
+      		debug("printEdgesInfo turned off..................");
+      	}
 		});
-        
-        ToggleButton toggleBttnChebysevIneq = (ToggleButton) scene.lookup("#toggleBttnChebysevIneq");
-        toggleBttnChebysevIneq.setOnAction(e -> {
-			if (toggleBttnChebysevIneq.isSelected()) {
-				chebysevIneq = true;
-			    debug("chebysevIneq turned ON..................");
-			} else {
-				chebysevIneq = false;
-				debug("chebysevIneq turned off..................");
-		    }
+      
+      /* Start/Stop Chebysev Inequality button in GUI */
+      ToggleButton toggleBttnChebysevIneq = (ToggleButton) scene.lookup("#toggleBttnChebysevIneq");
+      toggleBttnChebysevIneq.setOnAction(e -> {
+      	if (toggleBttnChebysevIneq.isSelected()) {
+      		chebysevIneq = true;
+      		debug("chebysevIneq turned ON..................");
+      	} else {
+      		chebysevIneq = false;
+      		debug("chebysevIneq turned off..................");
+      	}
 		});
      
     }
@@ -215,50 +222,33 @@ public class Main extends Application {
 		}
 	}
 	
-    public static void debug(String message){
-    	message = formatTime(System.currentTimeMillis())+": "+message;
+	public static void debug(String message){
+	 	message = formatTime(System.currentTimeMillis())+": "+message;
 		if (logging2File) /* Only if logfile is needed */
 			logservice.logMessage(message);
-		
+	
 		if (consoleOutputTrue) { /* All output to JavaFX console (TextArea) */ 
-	    	if (!message.endsWith("\n"))
-	    		message = message+"\n";
-	    	final String finalMessage = message;
-	    	Platform.runLater(() -> console.appendText(finalMessage));	/* without it, console crashes */
+			if (!message.endsWith("\n"))
+				message = message+"\n";
+			final String finalMessage = message;
+			Platform.runLater(() -> console.appendText(finalMessage));	/* without it, console crashes */
 		}
 		else /* standard Java output */
-			//System.out.println(formatTime(System.currentTimeMillis())+": "+ message+".");
-			
-			System.out.println(message);
-		
-		
-    }
+				//System.out.println(formatTime(System.currentTimeMillis())+": "+ message+".");
+				System.out.println(message);
+	}
     
-    public static void debugEssential(String message) {
+	public static void debugEssential(String message) {
 		if (logging2File){ /* Only if logfile is needed */
 			message = formatTime(System.currentTimeMillis())+"\t"+message;
 			logservice.logBasics(message);
 		}
-    }
+	}
     
-    public static void debugEssentialTitle(String message) {
+	public static void debugEssentialTitle(String message) {
 		if (logging2File){ /* Only if logfile is needed */
 			logservice.logBasics(message);
 		}
-    }
-}
-
-class MyThread implements Runnable{
-	private volatile boolean exit = false;
-	
-	@Override
-	public void run() {
-		while(!exit){
-		
-		}
-	}
-    public void stop(){
-        exit = true;
-    }
+   }
 }
 

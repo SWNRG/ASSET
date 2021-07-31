@@ -1,7 +1,7 @@
 package com.uom.georgevio;
 
+import java.io.File;
 import java.io.IOException;
-import java.util.logging.ConsoleHandler;
 import java.util.logging.FileHandler;
 import java.util.logging.Formatter;
 import java.util.logging.Handler;
@@ -24,11 +24,12 @@ public class LogService {
         try{
             // Creating SimpleFormatter
             simpleFormatter = new SimpleFormatter();
-            
+
             //Creating consoleHandler and fileHandler
             //consoleHandler = new ConsoleHandler();
-            fileHandler  = new FileHandler("./javalog.log");
-            fileHandler2  = new FileHandler("./essentialLog.log");
+            fileHandler  = new FileHandler("./javalog.log",10000,3,false);
+            fileHandler2  = new FileHandler("./essentialLog.log",10000,3,false);
+            
             //Assigning handlers to LOGGER object
             //LOGGER.addHandler(consoleHandler);
             LOGGER.addHandler(fileHandler);
@@ -64,5 +65,10 @@ public class LogService {
         //Console handler removed
         LOGGER.removeHandler(consoleHandler);
     }
+    
+    /***********UNIVERSAL PRINT IN GUI OUTPUT ***********************************/		
+    private static void debug(String message){
+    	Main.debug((message));
+	}	
  
 }

@@ -112,6 +112,14 @@ public class ClientHelper {
 			            try  { Thread.sleep( 800 ); }
 			            catch (InterruptedException ie)  {}
 			            send2serial.sendSpecificMessage(message);
+			            
+			            
+			            
+			            
+			            //delete if it works
+			            debug("MESSAGE SENT: "+message);
+			            
+			            
 			        }
 			    } ).start();
 

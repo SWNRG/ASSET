@@ -6,6 +6,8 @@ public class SerialPortProbe {
 	
 	private SerialPort motePort = null;
 	
+	private static final int searchUpToNum = 22;
+	
 	public SerialPort getMotePort() {
 		return motePort;
 	}
@@ -20,11 +22,11 @@ public class SerialPortProbe {
 	public void searchPort() {	
 	
 		String portName = null;
-		
+
 		while(!portFound) {
 			try{
-				for(int p = 1; p < 4; p++) {
-					 portName = "/dev/pts/"+String.valueOf(p);
+				for(int p = 15; p < searchUpToNum; p++) {
+					 portName = "/dev/pts/"+p;
 					/********* Set & open the serial port **************/            
 					debug("Opening port: "+ portName);
 					motePort = SerialPort.getCommPort(portName);
@@ -33,14 +35,17 @@ public class SerialPortProbe {
 					//motePort.setParity(1);
 					motePort.setComPortTimeouts(SerialPort.TIMEOUT_SCANNER, 0, 0);
 					if(motePort.openPort()){
-						debug("Serial Port found: "+portName);
+						debug("SUCCESS! Serial Port found: "+portName);
 						setMotePort(motePort);
 						portFound = true;
 						break;
 					} 
 				}
-				debug("Serial Port not found... Sleeping for 3 sec");
-				Thread.sleep(3000);	
+				if(!portFound) {
+					debug("Serial Port not found from 1 to pts/"
+							+searchUpToNum+". Sleeping for 3 sec...");
+					Thread.sleep(3000);	
+				}
 			} catch (Exception e) {
 				debug(e.toString());
 			} 
