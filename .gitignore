@@ -1,13 +1,4 @@
 /bin/
 /target/
-/essentialLog.log
-/essentialLog.log.1
-/essentialLog.log.lck
-/javalog.log.2
-/essentialLog.log.2
-/hs_err_pid19733.log
-/javalog.log
-/javalog.log.1
-/javalog.log.lck
-/essentialLog.log.1.lck
-/javalog.log.1.lck
+/*_err*
+/*.log.*
