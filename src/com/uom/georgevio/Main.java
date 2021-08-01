@@ -74,14 +74,14 @@ public class Main extends Application {
 	public void start(Stage primaryStage) throws Exception {
 
 		Parent root;
-    	// in jar export needs the relevant path, in eclipse needs the module name
+    	/* in jar export needs the relevant path, in eclipse needs the module name */
     	try {
     		root = FXMLLoader.load(getClass().getResource("/src/com/uom/georgevio/simpleGUI.fxml"));
     	}catch(NullPointerException e){
     		root = FXMLLoader.load(getClass().getResource("simpleGUI.fxml"));
     	}
         
-		scene = new Scene(root, 700, 800);
+		scene = new Scene(root, 700, 800); /* Size of GUI console output */
 			
 		primaryStageLocal.setTitle("ASSET IDS");
 		primaryStageLocal.setScene(scene);

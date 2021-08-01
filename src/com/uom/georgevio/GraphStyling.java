@@ -15,8 +15,8 @@ public class GraphStyling {
 	private boolean viewerStarted = false;
 	
 	public GraphStyling() { /* constructor */
-		if(!viewerStarted) {
-			viewInit(); /* Singleton */
+		if(!viewerStarted) { /* Singleton */
+			viewInit(); 
 			viewerStarted = true;
 		}
 	}
@@ -83,36 +83,19 @@ public class GraphStyling {
 							  + "shadow-width:0;"
 							  + "shadow-color:#C9C9C9;";
 
+	String backgroundCSS = "graph {"
+							  + "fill-image: url(\"background.png\");" /* DON'T USE TRANSPARENT BACKGROUND */
+							  + "fill-mode: image-tiled;"
+							  + "}";
+	
 /***************************************************************************/	
 	public void viewInit() {
 		
-		
-	    //graph.setAttribute("ui.stylesheet", "url(file://./init_pic.png')");
-	    
-	    
-		viewer = graph.display(true); /* show the graph in a standalone window */
-		viewer.enableAutoLayout();
-		
-		//graph.setAttribute();
-		//View view = viewer.getDefaultView();
-		//Camera cam = view.getCamera();
+		/* Insert a background image in the graph */
+		graph.setAttribute("ui.stylesheet", backgroundCSS);
 
-		
-		//TODO: set a background image
-		
-		/*
-		Graph graph = new SingleGraph("graph");`
-		Viewer viewer = graph.display();
-		DefaultView view = (DefaultView) viewer.getDefaultView();
-		view.setBackLayerRenderer(new LayerRenderer() {
-		    @Override
-		    public void render(Graphics2D graphics2D, GraphicGraph  graphicGraph, double v, int i, int i1, double v1, double v2, double v3, double v4) {
-		        graphics2D.setColor(Color.green);
-		        graphics2D.drawString("hello", 10, 30);
-		    }
-		});
-		*/
-		
+		viewer = graph.display(true); /* show the graph in a standalone window */
+		viewer.enableAutoLayout();	
 	}
 /***************************************************************************/	
 	public void removeView() {
