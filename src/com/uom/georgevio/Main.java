@@ -1,9 +1,11 @@
 package com.uom.georgevio;
 
-/* The JavaFX GUI is ready, it receives some parameters 
+/* The JavaFX GUI is ready, it receives some parameters
  * (e.g., nodes and edges numbers) but it is not
  * activated. Uncomment below the line primaryStage.show();
  */
+
+import com.fazecast.jSerialComm.SerialPort;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -16,13 +18,6 @@ import javafx.scene.control.ToggleButton;
 import javafx.stage.Stage;
 
 import java.text.SimpleDateFormat;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.util.logging.LogManager;
-import java.util.logging.Logger;
-
-import com.fazecast.jSerialComm.SerialPort;
 
 public class Main extends Application {
 	
@@ -75,104 +70,59 @@ public class Main extends Application {
 	public void start(Stage primaryStage) throws Exception {
 
 		Parent root;
-    	/* in jar export needs the relevant path, in eclipse needs the module name */
-    	try {
-    		root = FXMLLoader.load(getClass().getResource("/src/com/uom/georgevio/simpleGUI.fxml"));
-    	}catch(NullPointerException e){
-    		root = FXMLLoader.load(getClass().getResource("simpleGUI.fxml"));
-    	}
-        
+		/* in jar export needs the relevant path, in eclipse needs the module name */
+		try {
+			root = FXMLLoader.load(getClass().getResource("/src/com/uom/georgevio/simpleGUI.fxml"));
+		} catch (NullPointerException e) {
+			root = FXMLLoader.load(getClass().getResource("simpleGUI.fxml"));
+		}
+
 		scene = new Scene(root, 700, 800); /* Size of GUI console output */
-			
+
 		primaryStageLocal.setTitle("ASSET IDS");
 		primaryStageLocal.setScene(scene);
 		primaryStageLocal.show(); /* without this, the JavaGUI does not show */
-       
-      //TODO: Suspect for crashes?
-    	scene.getWindow().setX(0); /* left top of screen */
-    	scene.getWindow().setY(0);
-           	
-    	console = (TextArea) scene.lookup("#console");
-    	nodesOutput = (TextField) scene.lookup("#nodes");
-    	edgesOutput = (TextField) scene.lookup("#edges");
-    	inDegreeOutput = (TextField) scene.lookup("#inDegree");
-    	OutDegreesOutput = (TextField) scene.lookup("#outDegree"); 		
+
+		//TODO: Suspect for crashes?
+		scene.getWindow().setX(0); /* left top of screen */
+		scene.getWindow().setY(0);
+
+		console = (TextArea) scene.lookup("#console");
+		nodesOutput = (TextField) scene.lookup("#nodes");
+		edgesOutput = (TextField) scene.lookup("#edges");
+		inDegreeOutput = (TextField) scene.lookup("#inDegree");
+		OutDegreesOutput = (TextField) scene.lookup("#outDegree");
 
 		debug("Waiting for \"Start\" button ");
 
 		/* Transfer the Client.start() to the GUI button */
-		bttnStart = (Button) scene.lookup("#bttnStart");		
-		bttnStart.setOnAction(e->{ 
-			if(!appRunning) {
-				debug("(Re)starting the Application");
-				/* If GUI is restarted, it should start a new thread / client */
-		    	if(thread==null){
-					client = new Client();
-					thread =  new Thread(client); 
-					thread.start();
-					
-					debug("Thread's state: "+thread.getState());
-
-		    	} else {
-		    		debug("Thread NOT null, cannot restart it");
-					debug("Thread's state BEFORE: "+thread.getState());
-					thread.interrupt();
-					try {
-						thread.join();
-					} catch (InterruptedException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
-					debug("Thread's state AFTER: "+thread.getState());
-					client.terminate();
-					
-		    	}
-				appRunning = true;
-			} else {
-				appRunning = false;
-	          try {
-	         	 debug("App was running, trying to terminate");
-	         	 
-						debug("Thread's state: "+thread.getState());
-
-	         	 //if (thread != null) {
-
-	         	 	client.terminate();
-
-	         	 	
-	         	 	thread.interrupt();
-
-	         		 //thread.join();
-	         		 
-	         		 //if(client==null) debug("Client nullified");
-	         		 //else debug("Client NOT nullified");
-	         		 //if(thread==null) debug("thread nullified");
-	         		 //else debug("thread NOT nullified");
-	         	 //}
-				 } catch (Exception e1) {
-						debug("Button exception: "+e1.toString());
-						debug("Thread state: "+thread.getState());
-				 }
-		    }
+		bttnStart = (Button) scene.lookup("#bttnStart");
+		bttnStart.setOnAction(e -> {
+			debug("Starting application...");
+			//client = new Client();
+			thread = new Thread(new Client());
+			debug("Thread's id: " + thread.getId());
+			thread.start();
+			debug("Thread's state: " + thread.getState());
 		});
-     
-		/* Start/Stop the application button in GUI */
-	  Button bttnStop = (Button) scene.lookup("#bttnStop");
-	  bttnStop.setOnAction((event) -> {
-		  debug("STOP Button pressed. Currently the button is empty");
 
-		  // TODO: Is this working ???
-		// client.closeGraphViewer();
-		//  client.kill();
-	  });
-        
-     //if(thread.isAlive()) /* only if thread has started already */
-   	  //bttnStop.setOnAction(e->client.setExit(true));
-     
-     /* Start/Stop kMeans button in GUI */
-     ToggleButton toggleBttnkMeans = 
-   		  	(ToggleButton) scene.lookup("#toggleBttnkMeans");
-     toggleBttnkMeans.setOnAction(e -> {
+		/* Start/Stop the application button in GUI */
+		Button bttnStop = (Button) scene.lookup("#bttnStop");
+		bttnStop.setOnAction((event) -> {
+			debug("STOP Button pressed...");
+			debug("Thread's id: " + thread.getId());
+			debug("Thread's state: " + thread.getState());
+			// client.closeGraphViewer();
+			//  client.kill();
+		});
+
+		//if(thread.isAlive()) /* only if thread has started already */
+		//bttnStop.setOnAction(e->client.setExit(true));
+
+		/* Start/Stop kMeans button in GUI */
+		ToggleButton toggleBttnkMeans =
+				(ToggleButton) scene.lookup("#toggleBttnkMeans");
+		toggleBttnkMeans.setOnAction(e -> {
 			if (toggleBttnkMeans.isSelected()) {
 				kMeansStart = true;
 			    debug("kMeans turned ON..................");
@@ -198,14 +148,14 @@ public class Main extends Application {
       /* Start/Stop Chebysev Inequality button in GUI */
       ToggleButton toggleBttnChebysevIneq = 
       			(ToggleButton) scene.lookup("#toggleBttnChebysevIneq");
-      toggleBttnChebysevIneq.setOnAction(e -> {
-      	if (toggleBttnChebysevIneq.isSelected()) {
-      		chebysevIneq = true;
-      		debug("chebysevIneq turned ON..................");
-      	} else {
-      		chebysevIneq = false;
-      		debug("chebysevIneq turned off..................");
-      	}
+		toggleBttnChebysevIneq.setOnAction(e -> {
+			if (toggleBttnChebysevIneq.isSelected()) {
+				chebysevIneq = true;
+				debug("chebysevIneq turned ON..................");
+			} else {
+				chebysevIneq = false;
+				debug("chebysevIneq turned off..................");
+			}
 		});
      
     }
