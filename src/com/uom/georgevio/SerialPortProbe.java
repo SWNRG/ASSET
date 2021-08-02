@@ -7,6 +7,7 @@ public class SerialPortProbe {
 	private SerialPort motePort = null;
 	
 	private static final int searchUpToNum = 22;
+	private static final int searchFromNum = 15; /* Faster search. Be careful */
 	
 	public SerialPort getMotePort() {
 		return motePort;
@@ -16,7 +17,7 @@ public class SerialPortProbe {
 		this.motePort = motePort;
 	}    	
 	
-	protected volatile static boolean portFound = false;
+	protected static volatile boolean portFound = false;
 	
 	/***** Return the pts port used by Cooja ***********/	
 	public void searchPort() {	
@@ -24,8 +25,7 @@ public class SerialPortProbe {
 		String portName = null;
 
 		while(!portFound) {
-			try{
-				for(int p = 15; p < searchUpToNum; p++) {
+				for(int p = searchFromNum; p < searchUpToNum; p++) {
 					 portName = "/dev/pts/"+p;
 					/********* Set & open the serial port **************/            
 					debug("Opening port: "+ portName);
@@ -42,13 +42,14 @@ public class SerialPortProbe {
 					} 
 				}
 				if(!portFound) {
-					debug("Serial Port not found from 1 to pts/"
+					debug("Serial Port not found from pts/"+searchFromNum+" to pts/"
 							+searchUpToNum+". Sleeping for 3 sec...");
-					Thread.sleep(3000);	
+					try{
+						Thread.sleep(3000);	
+					} catch (Exception e) {
+						debug(e.toString());
+					} 
 				}
-			} catch (Exception e) {
-				debug(e.toString());
-			} 
 		}
 	}
 	

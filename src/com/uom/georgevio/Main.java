@@ -25,6 +25,7 @@ import java.util.logging.Logger;
 import com.fazecast.jSerialComm.SerialPort;
 
 public class Main extends Application {
+	
 	//TODO: Implement an algorithm to detect no connection to sink
 
 	static LogService logservice = new LogService();
@@ -67,8 +68,8 @@ public class Main extends Application {
 	private static Button bttnStart;
 	
 	private static boolean appRunning = false;
-	
 	Client client;
+	Thread thread; /* Thread will be started below with a button */
 	
 	@Override
 	public void start(Stage primaryStage) throws Exception {
@@ -97,39 +98,68 @@ public class Main extends Application {
     	inDegreeOutput = (TextField) scene.lookup("#inDegree");
     	OutDegreesOutput = (TextField) scene.lookup("#outDegree"); 		
 
-    	client = new Client();
-		Thread thread =  new Thread(client); /* Thread will be started below with a button */		
-
 		debug("Waiting for \"Start\" button ");
 
 		/* Transfer the Client.start() to the GUI button */
 		bttnStart = (Button) scene.lookup("#bttnStart");		
 		bttnStart.setOnAction(e->{ 
 			if(!appRunning) {
-				debug("Starting the Application");
-				thread.start();
-				//client.run();
-				//executor = Executors.newSingleThreadExecutor();
-				//executor.submit(client);
-				//runclient.run();
+				debug("(Re)starting the Application");
+				/* If GUI is restarted, it should start a new thread / client */
+		    	if(thread==null){
+					client = new Client();
+					thread =  new Thread(client); 
+					thread.start();
+					
+					debug("Thread's state: "+thread.getState());
+
+		    	} else {
+		    		debug("Thread NOT null, cannot restart it");
+					debug("Thread's state BEFORE: "+thread.getState());
+					thread.interrupt();
+					try {
+						thread.join();
+					} catch (InterruptedException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					debug("Thread's state AFTER: "+thread.getState());
+					client.terminate();
+					
+		    	}
 				appRunning = true;
-			}
-			else {
-				debug("App was running, trying to stop");
-				//client.closeGraphViewer();
-				//client.kill();
-				
-				//executor.shutdownNow();
-				
-				//runclient.kill();
+			} else {
 				appRunning = false;
-			}
+	          try {
+	         	 debug("App was running, trying to terminate");
+	         	 
+						debug("Thread's state: "+thread.getState());
+
+	         	 //if (thread != null) {
+
+	         	 	client.terminate();
+
+	         	 	
+	         	 	thread.interrupt();
+
+	         		 //thread.join();
+	         		 
+	         		 //if(client==null) debug("Client nullified");
+	         		 //else debug("Client NOT nullified");
+	         		 //if(thread==null) debug("thread nullified");
+	         		 //else debug("thread NOT nullified");
+	         	 //}
+				 } catch (Exception e1) {
+						debug("Button exception: "+e1.toString());
+						debug("Thread state: "+thread.getState());
+				 }
+		    }
 		});
      
 		/* Start/Stop the application button in GUI */
 	  Button bttnStop = (Button) scene.lookup("#bttnStop");
 	  bttnStop.setOnAction((event) -> {
-		  debug("STOP Button pressed");
+		  debug("STOP Button pressed. Currently the button is empty");
 
 		  // TODO: Is this working ???
 		// client.closeGraphViewer();
@@ -140,7 +170,8 @@ public class Main extends Application {
    	  //bttnStop.setOnAction(e->client.setExit(true));
      
      /* Start/Stop kMeans button in GUI */
-     ToggleButton toggleBttnkMeans = (ToggleButton) scene.lookup("#toggleBttnkMeans");
+     ToggleButton toggleBttnkMeans = 
+   		  	(ToggleButton) scene.lookup("#toggleBttnkMeans");
      toggleBttnkMeans.setOnAction(e -> {
 			if (toggleBttnkMeans.isSelected()) {
 				kMeansStart = true;
@@ -152,7 +183,8 @@ public class Main extends Application {
 		});
 		
      /* Start/Stop Print Edges button in GUI */
-      ToggleButton toggleBttnPrintEdgesInfo = (ToggleButton) scene.lookup("#toggleBttnPrintEdgesInfo");
+      ToggleButton toggleBttnPrintEdgesInfo = 
+      			(ToggleButton) scene.lookup("#toggleBttnPrintEdgesInfo");
       toggleBttnPrintEdgesInfo.setOnAction(e -> {
       	if (toggleBttnPrintEdgesInfo.isSelected()) {
       		printEdgesInfo = true;
@@ -164,7 +196,8 @@ public class Main extends Application {
 		});
       
       /* Start/Stop Chebysev Inequality button in GUI */
-      ToggleButton toggleBttnChebysevIneq = (ToggleButton) scene.lookup("#toggleBttnChebysevIneq");
+      ToggleButton toggleBttnChebysevIneq = 
+      			(ToggleButton) scene.lookup("#toggleBttnChebysevIneq");
       toggleBttnChebysevIneq.setOnAction(e -> {
       	if (toggleBttnChebysevIneq.isSelected()) {
       		chebysevIneq = true;
