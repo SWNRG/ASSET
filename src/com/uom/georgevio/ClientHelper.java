@@ -2,6 +2,12 @@ package com.uom.georgevio;
 
 /* BLACKLISTING AND MITIGATION ACTIONS OMITTED */
 
+import com.fazecast.jSerialComm.SerialPort;
+import org.graphstream.graph.Edge;
+import org.graphstream.graph.ElementNotFoundException;
+import org.graphstream.graph.Graph;
+import org.graphstream.graph.Node;
+
 import java.net.InetAddress;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -10,15 +16,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import org.graphstream.graph.Edge;
-import org.graphstream.graph.ElementNotFoundException;
-import org.graphstream.graph.Graph;
-import org.graphstream.graph.Node;
-import com.fazecast.jSerialComm.SerialPort;
-
-import javafx.scene.Scene;
-import javafx.scene.control.ToggleButton;
 
 public class ClientHelper {
 
@@ -75,51 +72,38 @@ public class ClientHelper {
 		boolean answer = false;
 		Stream<Node> nodesStr = graph.nodes();
 		//Iterable<Node> nodes = nodesStr::iterator; 
-				
+
 		/* Trying to iterate RANDOMLY */
 		Iterator<Node> randomNodes = nodesStr.iterator();
 		List<Node> nodeArray = new ArrayList<Node>();
 		while (randomNodes.hasNext()) {
 			nodeArray.add(randomNodes.next());
 		}
-		Collections.shuffle((List<?>) nodeArray);
-		
+		Collections.shuffle(nodeArray);
+
 		//while (randomNodes.hasNext()) {
-			//Node node = randomNodes.next();
-		
+		//Node node = randomNodes.next();
+
 		for (Node node : nodeArray) {
 			/* Orphan node(s), probe it again. This will happen rarely */
-			if(node.getInDegree()== 0 && !(node.toString()).equals(ipServer)){
-				debug("R:"+roundsCounter+" Sneacky node "+IPlastHex(node.toString())
-						+ " with no in->edge, was msg'd ");		
-				String message = "SP:"+node.toString()+"\n";
-				/*
-				send2serial.sendSpecificMessage(message);
-				try {
-					Thread.sleep(100);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} */
-				
-				/* trying to implement NON-blocking */	
-			  new Thread( new Runnable() {
-			        public void run()  {
-			            try  { Thread.sleep( 800 ); }
-			            catch (InterruptedException ie)  {}
-			            send2serial.sendSpecificMessage(message);
-			            
-			            
-			            
-			            
-			            //delete if it works
-			            debug("MESSAGE SENT: "+message);
-			            
-			            
-			        }
-			    } ).start();
+			if (node.getInDegree() == 0 && !(node.toString()).equals(ipServer)) {
+				debug("R:" + roundsCounter + " Sneaky node " + IPlastHex(node.toString())
+						+ " with no in->edge, was msg'd ");
+				String message = "SP:" + node.toString() + "\n";
 
-				answer = true; /* found a sneaky hiding node and probed it */				
+				/* trying to implement NON-blocking */
+				new Thread(new Runnable() {
+					public void run() {
+						try {
+							Thread.sleep(800);
+						} catch (InterruptedException ie) {
+						}
+						send2serial.sendSpecificMessage(message);
+						/* Needed for debugging only... */
+						//debug("MESSAGE SENT: "+message);
+					}
+				}).start();
+				answer = true; /* found a sneaky hiding node and probed it */
 			}//if
 		}//while
 		return answer; /* no one has zero incoming degree, If you are missing nodes, try next to probe for neighbors */
@@ -204,21 +188,21 @@ public class ClientHelper {
 
 				inDegree = node.getInDegree();
 				outDegree = node.getOutDegree();
-				totalOutDegrees+=outDegree;
+				totalOutDegrees += outDegree;
 				int shortNodeName = IPlastHex(node.toString());
-				keepAliveTimer = System.currentTimeMillis() - (long) node.getAttribute("keepAliveTimer");;
+				keepAliveTimer = System.currentTimeMillis() - (long) node.getAttribute("keepAliveTimer");
 				//float secs = keepAliveTimer / 1000F; 
-				String secs = new DecimalFormat("#,##0.00").format( keepAliveTimer / 1000F); /* seconds */
+				String secs = new DecimalFormat("#,##0.00").format(keepAliveTimer / 1000F); /* seconds */
 				try {
 					UDPRecv = (int) node.getAttribute("UDPRecv");
 					ICMPSent = (int) node.getAttribute("ICMPSent");
 					ICMPRecv = (int) node.getAttribute("ICMPRecv");
 
-				}catch (NullPointerException e) {
-					debug("Node "+IPlastHex(node.getId())+" "+e.toString());
+				} catch (NullPointerException e) {
+					debug("Node " + IPlastHex(node.getId()) + " " + e.toString());
 				}
-/******PRINTING INFORMATION ABOUT NODES *********************************************/	
-				debug(" Node "+shortNodeName+"\tInEdges "+inDegree+",\tLast seen "+
+/******PRINTING INFORMATION ABOUT NODES *********************************************/
+				debug(" Node " + shortNodeName + "\tInEdges " + inDegree + ",\tLast seen " +
 							//df.format(secs)+
 							secs+" sec. UDPRecv "+UDPRecv+
 							"\tICMP I/O: "+ICMPRecv+", "+ICMPSent
@@ -563,13 +547,13 @@ public class ClientHelper {
 					
 				if(Main.chebysevIneq) { /* GUI ToggleButton */
 					/* Both standard deviations must be outliers */
-					if(chebIneq.isOutlier(((double)getLastSent), doubleSentArray, IPlastHex(nodeId)) &&
-					   chebIneq.isOutlier(((double)getLastRecv), doubleRecvArray, IPlastHex(nodeId))){
-							debugBoth("Node "+IPlastHex(nodeId)+" Chebysev ICMP BOTH ISOUTLIER = 1. POSSIBLE ATTACK...");
-							node.setAttribute("isOutlier",true);
+					if (chebIneq.isOutlier(getLastSent, doubleSentArray, IPlastHex(nodeId)) &&
+							chebIneq.isOutlier(getLastRecv, doubleRecvArray, IPlastHex(nodeId))) {
+						debugBoth("Node " + IPlastHex(nodeId) + " Chebysev ICMP BOTH ISOUTLIER = 1. POSSIBLE ATTACK...");
+						node.setAttribute("isOutlier", true);
 					}
 					//else
-						//debug("Node "+IPlastHex(nodeId)+" is within Chebyshev limits");
+					//debug("Node "+IPlastHex(nodeId)+" is within Chebyshev limits");
 				}
 			}	
 			
@@ -672,17 +656,17 @@ public class ClientHelper {
 			Node node = graph.getNode(nodeId);
 			if (checkVersionTimeAttack(node)) { /* The node is still in less than XX attacks per hour */
 				/* Just in case the node was ordered to stop resetting trickle timer long ago */
-				if ("T1".equals((String) node.getAttribute("verNumAttacksState"))) {
-					String message = "T0 "+node+"\n"; //T0 start resetting trickle timer  
-					sendMsg2Serial(message);					
-				}					
+				if ("T1".equals(node.getAttribute("verNumAttacksState"))) {
+					String message = "T0 " + node + "\n"; //T0 start resetting trickle timer
+					sendMsg2Serial(message);
+				}
 			}
 			else { /* The node is in more than XX attacks per hour, hence it is under attack */
-				if (!"T1".equals((String) node.getAttribute("verNumAttacksState"))) { /* only once */
+				if (!"T1".equals(node.getAttribute("verNumAttacksState"))) { /* only once */
 					node.setAttribute("verNumAttacksState", "T1"); /* By default is T0 */
-					String message = "T1 "+node+"\n"; /* T1 = stop resetting trickle timer */  
+					String message = "T1 " + node + "\n"; /* T1 = stop resetting trickle timer */
 					sendMsg2Serial(message);
-				}				
+				}
 			}
 		}catch (Exception e) {
 			debug("Node "+IPlastHex(nodeId)+": "+e.toString());

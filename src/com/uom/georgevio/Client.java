@@ -1,8 +1,8 @@
 package com.uom.georgevio;
 
-import java.util.Scanner;
-import javax.annotation.processing.Processor;
 import com.fazecast.jSerialComm.SerialPort;
+
+import java.util.Scanner;
 
 public class Client extends StringProcessor implements Runnable{
 	
@@ -23,28 +23,28 @@ public class Client extends StringProcessor implements Runnable{
 	String inComingLine;
 	
 	private volatile boolean running = true; /* to start/restart/stop the thread */
-	
+
 	@Override
-   public void run(){
-     	 
-		while(running) {
+	public void run() {
+
+		while (running) {
 			try {
-			 
+
 				serialportprobe.searchPort();
 				while (!SerialPortProbe.portFound) {
-					 Thread.sleep(100);
-					 /* stay here while searching for motePort */
+					Thread.sleep(100);
+					/* stay here while searching for motePort */
 				}
-				motePort=serialportprobe.getMotePort();
+				motePort = serialportprobe.getMotePort();
 				clienthelper.setMotePort(motePort);
 				debug("CLIENT: Ready to read RPL network");
-	    	
+
 				/* read serial port output line by line */
 				lineReader = new Scanner(motePort.getInputStream());
-			
-				while(lineReader.hasNextLine() ){	
-				
-					if ( (inComingLine = lineReader.nextLine() ) != null) {
+
+				while (lineReader.hasNextLine()) {
+
+					if ((inComingLine = lineReader.nextLine()) != null) {
 		
 						/* Possible new messages sent by the sink, should be added here */
 						 stringproccessor.matches(inComingLine, clienthelper, roundsCounter);
@@ -75,49 +75,37 @@ public class Client extends StringProcessor implements Runnable{
 		        		if(Main.appTimeStarted > 2*Main.keepAliveNodeBound 
 		        				&& roundsCounter > 100 
 		        				&& Main.kMeansStart /* GUI toggle button */
-		        			){
-		        			clienthelper.runKMeans(2); /* BE CAREFUL: Nothing else than 2 for now */
-	
-/*-----------------------IMPLEMENTING BLACKLISTING AND MITIGATION MEASURES OMITTED */	        		
-	        		
-		        		} // if(Main.appTimeStarted...
+		        			) {
+							clienthelper.runKMeans(2); /* BE CAREFUL: Nothing else than 2 for now */
+
+							/*-----------------------IMPLEMENTING BLACKLISTING AND MITIGATION MEASURES OMITTED */
+
+						} // if(Main.appTimeStarted...
 					}/* end if InPut!=null */
-				
+
 					roundsCounter++;
 
-/*********************End of reading the serial lines ********/	    		 
+/*********************End of reading the serial lines ********/
 				}/* end while nextline() */
-    	 
-				
-				
-			 } catch (Exception iE) {
-				 	debug("Client exception: "+iE.toString());	
-			 }
- 
-			
-			
-			
-			
-     	}/* end while(running) */
-		 
-    }/* end run() */
+
+			} catch (InterruptedException iE) {
+				debug("Client exception: " + iE.toString());
+				//lineReader.close();
+				running = false;
+				break;
+			}
+
+		}/* end while(running) */
+
+	}/* end run() */
 /**************END OF run()***********************************/
 
-	
 /************************************************************/   
     public void terminate() {
-   	debug("Client thread is terminating...");
-   	 
-   	lineReader.close();
-   	// They are causing Nullpointer exception
-		//debug("Closing scanner...Program ended");
-		//clienthelper.closeGraphViewer();
-		//lineReader.close();
-			
-    	/* stopping the runnable Client */
-    	running = false;
-
-    }
+		debug("Client thread is terminating...");
+		/* stopping the runnable Client */
+		running = false;
+	}
 /************************************************************/     
  	public static void setipServer(String ipServer) {
 		Client.ipServer = ipServer;

@@ -5,7 +5,6 @@ package com.uom.georgevio;
  * activated. Uncomment below the line primaryStage.show();
  */
 
-import com.fazecast.jSerialComm.SerialPort;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -37,8 +36,6 @@ public class Main extends Application {
 	
 	/* Start/Stop the cebysev inequality check for outliers in addICMPArrays in ClientHelper */
 	public static boolean chebysevIneq = false;
-	
-	SerialPort motePort = null; /* will be set by the Client class */
 	
 	public static final long appTimeStarted = System.currentTimeMillis(); /* Time this Application first started */
 	
@@ -98,26 +95,33 @@ public class Main extends Application {
 		/* Transfer the Client.start() to the GUI button */
 		bttnStart = (Button) scene.lookup("#bttnStart");
 		bttnStart.setOnAction(e -> {
+
+			client = new Client();
+			thread = new Thread(client);
 			debug("Starting application...");
-			//client = new Client();
-			thread = new Thread(new Client());
-			debug("Thread's id: " + thread.getId());
-			thread.start();
-			debug("Thread's state: " + thread.getState());
+
+			if (!thread.isAlive()) {
+				thread.start();
+				debug("Thread is " + thread.getState());
+
+			} else {
+				debug("Thread NOT null, cannot restart it");
+				debug("Thread's state BEFORE: " + thread.getState());
+				client.terminate();
+				thread.interrupt();
+				thread.stop();
+				debug("Thread's state AFTER: " + thread.getState());
+			}
 		});
 
-		/* Start/Stop the application button in GUI */
+		/* Stop the application button in GUI */
 		Button bttnStop = (Button) scene.lookup("#bttnStop");
 		bttnStop.setOnAction((event) -> {
 			debug("STOP Button pressed...");
-			debug("Thread's id: " + thread.getId());
-			debug("Thread's state: " + thread.getState());
-			// client.closeGraphViewer();
-			//  client.kill();
+			client.terminate();
+			thread.interrupt();
+			thread.stop();
 		});
-
-		//if(thread.isAlive()) /* only if thread has started already */
-		//bttnStop.setOnAction(e->client.setExit(true));
 
 		/* Start/Stop kMeans button in GUI */
 		ToggleButton toggleBttnkMeans =
