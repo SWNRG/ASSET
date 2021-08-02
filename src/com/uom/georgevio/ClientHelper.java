@@ -55,10 +55,6 @@ public class ClientHelper {
 	public ClientHelper() { /* constructor */
 		Main.debugEssentialTitle("Time\t\tNode\tInEdges\tLastSeen(sec)\tUDPRecv\tICMPin\tICMPout"); 
 	}
-/***************************************************************************/
-	public void removeGraph() {
-		graphstyling.removeView();
-	}
 /***************************************************************************/	
 	public void closeGraphViewer() { /* trying to stop the graph viewer in main */
 		graphstyling.removeView();

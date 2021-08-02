@@ -99,7 +99,11 @@ public class GraphStyling {
 	}
 /***************************************************************************/	
 	public void removeView() {
-		viewer.close();
+		try {
+			viewer.close();
+		} catch(Exception e) {
+			debug("Viewer closing failed: "+e.toString());
+		}
 	}
 /***************************************************************************/		
 	public Graph returnGraph() { /* getter */
