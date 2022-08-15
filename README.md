@@ -17,6 +17,17 @@ The "proffesional" way which gives you access to all, is to download contiki TWI
 1. the contiki (slightly altereed with a lot of custom messages, etc.) from [![here](https://github.com/SWNRG/contiki-standard-extra-functions)]. Go to contiki/examples/ipv6/rpl-udp-fresh/ and run one of the many \*.csc files there. they all use the same two nodes: udp-server.c and udp-client.c. The \*dixon\*.csc emulations are using the respective \*dixon*.c sink/client code. 
 2. In order to include one or more intruder node(s), you have to download another contriki version (completely separated), from ![contiki-malicious](https://github.com/SWNRG/contiki-malicious), or ![contiki-malicious-controller-aware](https://github.com/SWNRG/contiki-malicious-controller-aware), or ![contiki-malicious-controller-aware-version-attack](https://github.com/SWNRG/contiki-malicious-controller-aware-version-attack). Again, in all cases, the intruder code is in contiki/examples/ipv6/rpl-udp-fresh/\*.c.
 
+## HOW TO RUN IT
+<img src='/pics/2022 ASSET in action.png' width=800/>
+Look in the picture above for details.
+Open in cooja any of the network setups inside the folders in the altered Contiki folders described above, or just create a custom network with one server node, and multiple clients. You may omit the attacking nodes. DON’T START COOJA YET.
+Open ASSET project in any IDE (I run it in Eclipse, but any other one should work fine , e.g., netbeans).
+Run the main.java file. It should start automatically and open two windows: 1. The GUI with the dynamic map of the network, and 2. The log serial output. In this screen, just press “Start” BEFORE you start cooja. After you start ASSET, pay attention to the log output. Is the serial port found the same with the one in cooja? If not, play with the values of “searchFromNum” and searchUpToNum” variables in the SerialProbePort.java file. Sometimes, some Ubuntu versions falsly advertise other ports as open.
+If you did everything correctly, you should the message “SUCCESS, Serial Port found. Dev/pts/XX, where XX should be the same number with the one depicted in cooja in the “Serial 2 PTY” window for Serial Device (2nd line).
+After a while, the logs of the discovered nodes will start appearing, and the network GUI should be filled accordingly.
+As soon as you implement attackers into the network, you may start experimenting with the other buttons (kMeans, Print Edges, Chebyshev).
+
+
 DONT FORGER TO CITE...
 
 George Violettas, George Simoglou, Sophia Petridou, Lefteris Mamatas,
