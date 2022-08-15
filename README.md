@@ -27,8 +27,7 @@ If you did everything correctly, you should the message “SUCCESS, Serial Port 
 After a while, the logs of the discovered nodes will start appearing, and the network GUI should be filled accordingly.
 As soon as you implement attackers into the network, you may start experimenting with the other buttons (kMeans, Print Edges, Chebyshev).
 
-
-DONT FORGER TO CITE...
+##DONT FORGER TO CITE...
 
 George Violettas, George Simoglou, Sophia Petridou, Lefteris Mamatas,
 A Softwarized Intrusion Detection System for the RPL-based Internet of Things networks,
