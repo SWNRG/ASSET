@@ -17,6 +17,9 @@ The "proffesional" way which gives you access to all, is to download contiki TWI
 1. the contiki (slightly altereed with a lot of custom messages, etc.) from [![here](https://github.com/SWNRG/contiki-standard-extra-functions)]. Go to contiki/examples/ipv6/rpl-udp-fresh/ and run one of the many \*.csc files there. they all use the same two nodes: udp-server.c and udp-client.c. The \*dixon\*.csc emulations are using the respective \*dixon*.c sink/client code. 
 2. In order to include one or more intruder node(s), you have to download another contriki version (completely separated), from ![contiki-malicious](https://github.com/SWNRG/contiki-malicious), or ![contiki-malicious-controller-aware](https://github.com/SWNRG/contiki-malicious-controller-aware), or ![contiki-malicious-controller-aware-version-attack](https://github.com/SWNRG/contiki-malicious-controller-aware-version-attack). Again, in all cases, the intruder code is in contiki/examples/ipv6/rpl-udp-fresh/\*.c.
 
+## 2023 INSTALLATION UPDATE
+Import the project into Eclise or similar IDE with a git/github process. This will automatically download all necessary libraries. Although the maven will automatically download all libraries needed, JAVAFX seems to be an issue, at least in Ubuntu 20. You have to download JavaFX into your OS, it seems to be outside the project!
+
 ## HOW TO RUN IT
 <img src='/pics/2022 ASSET in action.png' width=800/>
 Look in the picture above for details.
