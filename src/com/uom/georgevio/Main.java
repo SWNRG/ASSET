@@ -5,6 +5,9 @@ package com.uom.georgevio;
  * activated. Uncomment below the line primaryStage.show();
  */
 
+/* 2023 UPDATE: JavaFX seems to be outside the maven. 
+ * It needs to be installed in the particular OS with JDK
+ */
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
