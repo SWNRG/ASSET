@@ -2,6 +2,7 @@
 <classpath>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8">
 		<attributes>
+			<attribute name="module" value="true"/>
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
@@ -16,5 +17,14 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="libraries"/>
+	<classpathentry kind="lib" path="libraries/javafx.base.jar"/>
+	<classpathentry kind="lib" path="libraries/javafx.controls.jar"/>
+	<classpathentry kind="lib" path="libraries/javafx.fxml.jar"/>
+	<classpathentry kind="lib" path="libraries/javafx.graphics.jar"/>
+	<classpathentry kind="lib" path="libraries/javafx.media.jar"/>
+	<classpathentry kind="lib" path="libraries/javafx.swing.jar"/>
+	<classpathentry kind="lib" path="libraries/javafx.web.jar"/>
+	<classpathentry kind="lib" path="libraries/javafx-swt.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
