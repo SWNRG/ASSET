@@ -18,7 +18,11 @@ The "proffesional" way which gives you access to all, is to download contiki TWI
 2. In order to include one or more intruder node(s), you have to download another contriki version (completely separated), from ![contiki-malicious](https://github.com/SWNRG/contiki-malicious), or ![contiki-malicious-controller-aware](https://github.com/SWNRG/contiki-malicious-controller-aware), or ![contiki-malicious-controller-aware-version-attack](https://github.com/SWNRG/contiki-malicious-controller-aware-version-attack). Again, in all cases, the intruder code is in contiki/examples/ipv6/rpl-udp-fresh/\*.c.
 
 ## 2023 INSTALLATION UPDATE
-Import the project into Eclise or similar IDE with a git/github process. This will automatically download all necessary libraries. Although the maven will automatically download all libraries needed, JAVAFX seems to be an issue, at least in Ubuntu 20. You have to download JavaFX into your OS, it seems to be outside the project!
+All JavaFX libraries were embedded in the folder /libraries.
+It was found that the project was not really portable when expecting those libraries to be found in the Java JRE/JDK.Specificallly, it only worked with specific Java flavous (Oracle), when those included all the JavaFX libraries, otherwise the project was failing on runtime (compile was ok!).
+You can read more in such articles: https://stackoverflow.com/questions/51478675/error-javafx-runtime-components-are-missing-and-are-required-to-run-this-appli
+
+With the above "hack" I tried the project in a clean Ubuntu 20 installation (September 2023). If any problems, email georgevio@gmail.com
 
 ## HOW TO RUN IT
 <img src='/pics/2022 ASSET in action.png' width=800/>
