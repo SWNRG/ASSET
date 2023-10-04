@@ -26,5 +26,6 @@
 	<classpathentry kind="lib" path="libraries/javafx.swing.jar"/>
 	<classpathentry kind="lib" path="libraries/javafx.web.jar"/>
 	<classpathentry kind="lib" path="libraries/javafx-swt.jar"/>
+	<classpathentry kind="src" path="extLibs"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
