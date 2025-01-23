@@ -19,6 +19,7 @@ The "proffesional" way which gives you access to all, is to download contiki TWI
 
 ## 2024 UPDATE: Compiler details
 **Compiler plays a pivotal role**. I used gcc 5.4.0 20160609. Sceenshot below:
+
 <img src='/pics/compiler.png' width=300/>
 
 ## 2023 INSTALLATION UPDATE
